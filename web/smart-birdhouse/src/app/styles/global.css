@@ -34,6 +34,13 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --layout-page-padding: var(--space-4);
+  --layout-section-gap: var(--space-6);
+  --layout-container-max: 1200px;
+  --z-index-main-layer: 10;
 }
 
 *,
@@ -60,6 +67,7 @@ body {
 
 #root {
   min-height: 100vh;
+  padding: var(--layout-page-padding);
 }
 
 a {
@@ -119,4 +127,44 @@ code,
   font-family: var(--font-mono);
   font-size: 0.9em;
   color: var(--color-text-muted);
+}
+
+.layout-page {
+  min-height: 100vh;
+  padding: var(--layout-page-padding);
+}
+
+.layout-container {
+  width: 100%;
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  padding-inline: var(--layout-page-padding);
+}
+
+.layout-section {
+  margin-bottom: var(--layout-section-gap);
+}
+
+.layout-section:last-child {
+  margin-bottom: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--layout-section-gap);
+}
+
+.stack--sm {
+  gap: var(--space-3);
+}
+
+.stack--lg {
+  gap: var(--space-8);
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }

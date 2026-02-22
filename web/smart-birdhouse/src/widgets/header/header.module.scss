@@ -1,0 +1,29 @@
+.root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: red;
+  width: 100%;
+  max-width: 100vw;
+  backdrop-filter: blur(14px);
+  will-change: backdrop-filter;
+  z-index: var(--z-index-main-layer);
+  transition: 0.2s;
+}
+
+.container {
+  max-width: var(--layout-container-max);
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--layout-page-padding);
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: padding 0.2s;
+  padding: 24px 0px;
+}
