@@ -40,6 +40,7 @@
   --layout-page-padding: var(--space-4);
   --layout-section-gap: var(--space-6);
   --layout-container-max: 1200px;
+  --layout-header-height: 64px;
   --z-index-main-layer: 10;
 }
 
@@ -167,4 +168,9 @@ code,
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+.layout-main {
+  padding-top: var(--layout-header-height);
+  min-height: 100vh;
 }
