@@ -6,163 +6,149 @@
 Предназначен для работы в связке с внешним триггером (например, датчик движения).
 """
 
+#!/usr/bin/env python3
+
 import RPi.GPIO as GPIO
 import subprocess
 import time
 import os
-import traceback
-import datetime
 import signal
+from flask import Flask, jsonify, request
 
-# ---------- setup ----------
+# ---------- PINS ----------
 PI_SIGNAL_PIN = 17
-PI_READY_PIN  = 27
+PI_MODE_PIN = 22
+PI_READY_PIN = 27
+
 VIDEO_DIR = "/home/pavlinmavlin/videos"
 
-MAX_RECORD_TIME = 42
-FRAMERATE = 30
-WIDTH = 1920
-HEIGHT = 1080
-PROCESS_TIMEOUT = 90
-
-# ---------- prepare GPIO ----------
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(PI_SIGNAL_PIN, GPIO.IN)
-GPIO.setup(PI_READY_PIN, GPIO.OUT, initial=GPIO.LOW)
 
-# ---------- create directory ----------
-try:
-    os.makedirs(VIDEO_DIR, exist_ok=True)
-    print("📁 VIDEO_DIR ready:", VIDEO_DIR)
-except Exception as e:
-    print("❌ Failed to create VIDEO_DIR:", e)
+GPIO.setup(PI_SIGNAL_PIN, GPIO.IN)
+GPIO.setup(PI_READY_PIN, GPIO.OUT)
+GPIO.setup(PI_MODE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+os.makedirs(VIDEO_DIR, exist_ok=True)
 
 process = None
 recording = False
-record_start_time = None
-current_file = None
-pi_on_time = None
+manual_mode = False
 
-# ---------- log ----------
-def log(msg):
-    """Печатает сообщение с префиксом времени в формате HH:MM:SS."""
-    print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}")
+# ---------- MODE ----------
+if GPIO.input(PI_MODE_PIN) == GPIO.HIGH:
+    manual_mode = True
+    print("📱 MANUAL MODE")
+else:
+    print("🐦 AUTO MODE")
 
-
-# ---------- start recording ----------
+# ---------- RECORD ----------
 def start_recording():
-    """
-    Запускает запись видео в MP4 через rpicam-vid (libav).
-    Устанавливает PI_READY_PIN в HIGH. Ничего не делает, если запись уже идёт.
-    """
-    global process, recording, record_start_time, current_file, pi_on_time
+    global process, recording
 
     if recording:
         return
 
-    timestamp = int(time.time())
-    current_file = os.path.join(VIDEO_DIR, f"video_{timestamp}.mp4")
-
-    log(f"🎬 START RECORDING: {current_file}")
-
-    GPIO.output(PI_READY_PIN, GPIO.HIGH)  # Pi занят
-    pi_on_time = time.time()
+    filename = os.path.join(VIDEO_DIR, f"video_{int(time.time())}.mp4")
 
     process = subprocess.Popen([
         "rpicam-vid",
         "-t", "0",
-        "--width", str(WIDTH),
-        "--height", str(HEIGHT),
-        "--framerate", str(FRAMERATE),
-
+        "--width", "1920",
+        "--height", "1080",
+        "--framerate", "30",
         "--codec", "libav",
         "--libav-format", "mp4",
-
-        "--bitrate", "30000000",   
-
-        "--profile", "high",
-        "--level", "4.2",
-        "--intra", "30",
-
+        "--bitrate", "30000000",
         "--nopreview",
-        "-o", current_file
-
-    ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        "-o", filename
+    ])
 
     recording = True
-    record_start_time = time.time()
+    print("🎬 Recording started")
 
-# ---------- stop recording ----------
+
 def stop_recording():
-    """
-    Останавливает текущую запись: отправляет SIGINT в rpicam-vid, при необходимости
-    принудительно завершает процесс, синхронизирует диск. Всегда сбрасывает
-    PI_READY_PIN и глобальное состояние записи.
-    """
-    global process, recording, record_start_time, current_file, pi_on_time
+    global process, recording
 
-    try:
-        log("⏹ STOP RECORDING")
+    if not process:
+        return
 
-        if process:
-            log("Sending SIGINT to rpicam...")
-            process.send_signal(signal.SIGINT)
+    process.send_signal(signal.SIGINT)
+    process.wait()
 
-            try:
-                process.wait(timeout=10)
-                log("✅ rpicam stopped cleanly")
-            except subprocess.TimeoutExpired:
-                log("⚠ rpicam did not exit, killing")
-                process.kill()
+    process = None
+    recording = False
+    print("⏹ Recording stopped")
 
-        os.sync()
 
-        if current_file and os.path.exists(current_file):
-            size = os.path.getsize(current_file) / (1024 * 1024)
-            log(f"📁 File saved: {current_file} ({size:.1f} MB)")
-        else:
-            log("❌ File missing after recording")
+# ---------- FILE LIST ----------
+def list_files():
+    files = []
+    for f in os.listdir(VIDEO_DIR):
+        if f.endswith(".mp4"):
+            files.append(f)
+    return files
 
-    except Exception:
-        log(f"❌ Exception during stop_recording:\n{traceback.format_exc()}")
 
-    finally:
-        GPIO.output(PI_READY_PIN, GPIO.LOW)
-        recording = False
-        process = None
-        record_start_time = None
-        pi_on_time = None
-    # ---------- main loop ----------
-try:
-    GPIO.output(PI_READY_PIN, GPIO.HIGH)
-    time.sleep(0.5)
+# ---------- API ----------
+app = Flask(__name__)
+
+@app.route("/status")
+def status():
+    return jsonify({
+        "manual_mode": manual_mode,
+        "recording": recording,
+        "files": list_files()
+    })
+
+
+@app.route("/record/start", methods=["POST"])
+def api_start():
+    start_recording()
+    return jsonify({"ok": True})
+
+
+@app.route("/record/stop", methods=["POST"])
+def api_stop():
+    stop_recording()
+    return jsonify({"ok": True})
+
+
+@app.route("/shutdown", methods=["POST"])
+def shutdown():
+    GPIO.output(PI_READY_PIN, GPIO.LOW)
+    return jsonify({"ok": True})
+
+
+# ---------- MAIN ----------
+GPIO.output(PI_READY_PIN, GPIO.HIGH)
+
+if not manual_mode:
+    print("Waiting for ESP32 signal...")
+else:
+    print("Manual control active")
+
+def gpio_loop():
+    global recording
 
     while True:
-        signal_state = GPIO.input(PI_SIGNAL_PIN)
-        now = time.time()
 
-        if signal_state == GPIO.HIGH and not recording:
-            start_recording()
+        if not manual_mode:
 
-        if recording:
-            elapsed = now - record_start_time if record_start_time else 0
+            signal_state = GPIO.input(PI_SIGNAL_PIN)
 
-            if signal_state == GPIO.LOW or elapsed >= MAX_RECORD_TIME:
+            if signal_state == GPIO.HIGH and not recording:
+                start_recording()
+
+            if signal_state == GPIO.LOW and recording:
                 stop_recording()
-            else:
-                if pi_on_time:
-                    log(f"⏱ Recording time: {int(now - pi_on_time)} sec")
+                GPIO.output(PI_READY_PIN, GPIO.LOW)
 
-                    if now - pi_on_time > PROCESS_TIMEOUT:
-                        log("⚠ Max process time exceeded, forcing stop")
-                        stop_recording()
+        time.sleep(0.2)
 
-        time.sleep(0.5)
 
-except KeyboardInterrupt:
-    log("🛑 Stopped manually")
+import threading
 
-finally:
-    if process:
-        stop_recording()
-    GPIO.cleanup()
+threading.Thread(target=gpio_loop, daemon=True).start()
+
+app.run(host="0.0.0.0", port=5000)
