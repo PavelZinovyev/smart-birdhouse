@@ -1,0 +1,47 @@
+/**
+ * API управления питанием Raspberry Pi на ESP32: GET /api/pi/status, POST /api/pi/power
+ */
+
+export interface PiStatus {
+  pi_power: boolean;
+  state: number;
+  manual: boolean;
+}
+
+const PI_STATUS_URL = '/api/pi/status';
+const PI_POWER_URL = '/api/pi/power';
+
+export async function fetchPiStatus(): Promise<PiStatus | null> {
+  try {
+    const res = await fetch(PI_STATUS_URL);
+    if (!res.ok) return null;
+    const raw = (await res.json()) as unknown;
+    if (
+      typeof raw === 'object' &&
+      raw !== null &&
+      'pi_power' in raw
+    ) {
+      return {
+        pi_power: Boolean((raw as PiStatus).pi_power),
+        state: Number((raw as PiStatus).state) || 0,
+        manual: Boolean((raw as PiStatus).manual),
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setPiPower(on: boolean, manual: boolean): Promise<boolean> {
+  try {
+    const res = await fetch(PI_POWER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ on, manual }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchSensors, type SensorsData, type SensorsResult } from './sensors';
-
-export const SENSORS_QUERY_KEY = ['sensors'] as const;
-const REFETCH_INTERVAL_MS = 5000;
+import { queryKeys } from './query-keys';
+import { REFETCH_INTERVAL_SENSORS_MS, STALE_TIME_OFFSET_MS } from '@/shared/constants/query';
 
 function sensorsQueryFn(): Promise<SensorsResult> {
   return fetchSensors();
@@ -12,24 +11,23 @@ function sensorsQueryFn(): Promise<SensorsResult> {
  * Данные сенсоров с кэшем и автообновлением.
  * Новый запрос не стартует, пока предыдущий в pending (TanStack Query по умолчанию).
  */
-export function useSensors(refetchIntervalMs = REFETCH_INTERVAL_MS) {
+export function useSensors(refetchIntervalMs = REFETCH_INTERVAL_SENSORS_MS) {
   const query = useQuery({
-    queryKey: SENSORS_QUERY_KEY,
+    queryKey: queryKeys.sensors,
     queryFn: sensorsQueryFn,
     refetchInterval: refetchIntervalMs,
     refetchIntervalInBackground: false,
-    staleTime: refetchIntervalMs - 500,
+    staleTime: refetchIntervalMs - STALE_TIME_OFFSET_MS,
   });
 
   const result = query.data;
   const data: SensorsData | null = result?.data ?? null;
   const isMock = result?.isMock ?? false;
-  const error = query?.error?.message;
 
   return {
     data,
     loading: query.isPending,
-    error,
+    error: query?.error?.message,
     isMock,
     refetch: query.refetch,
     isFetching: query.isFetching,

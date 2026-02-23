@@ -18,13 +18,9 @@ export const BatteryChart = ({
 }: BatteryChartProps) => {
   const showPlaceholder = loading || !batteryAvailable;
   const displayValue = showPlaceholder ? '—' : value;
-  const ariaLabel = loading
-    ? 'Заряд батареи: загрузка'
-    : !batteryAvailable
-      ? 'Заряд батареи: датчик не подключён'
-      : `Заряд батареи: ${value}%`;
+
   return (
-    <article className={className} aria-label={ariaLabel}>
+    <article className={className} aria-label={'Заряд батареи'}>
       <MetricWidetTitle label="Батарея" />
       <div className={styles.root}>
         <div className={styles.row}>
