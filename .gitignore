@@ -1,5 +1,9 @@
 node_modules/
 
-# Билд веб-приложения для ESP32 (генерируется: npm run copy-web-to-esp32)
+# секреты: не коммитить(пароль Wi‑Fi для прошивки)
+.env
+esp32/include/secrets.h
+
+# билд веб-приложения для esp32(генерируется: npm run copy-web-to-esp32)
 esp32/data/*
 !esp32/data/.gitkeep

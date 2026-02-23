@@ -27,9 +27,10 @@
 #define I2C_SDA         21
 #define I2C_SCL         20
 
-// ---------- WiFi AP ----------
-const char* ap_ssid     = "SmartBirdhouse";
-const char* ap_password = "birdhouse1";
+// ---------- WiFi AP (SSID/пароль из esp32/include/secrets.h, генерируется из .env) ----------
+#include "secrets.h"
+const char* ap_ssid     = AP_SSID;
+const char* ap_password = AP_PASSWORD;
 IPAddress ap_ip(192, 168, 4, 1);
 IPAddress ap_gw(192, 168, 4, 1);
 IPAddress ap_subnet(255, 255, 255, 0);

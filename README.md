@@ -23,9 +23,13 @@ npm run upload              # заливка прошивки ESP32
 **Только веб:** `npm run copy-web-to-esp32` → `npm run uploadfs`  
 **Только прошивка:** `npm run upload`
 
+## Настройка
+
+**Пароль Wi‑Fi:** в `esp32/src/main.cpp` поменять `ap_password` (и при желании `ap_ssid`), затем выполнить `npm run upload`. Пароль — не короче 8 символов.
+
 ## Использование
 
-1. Подключиться к Wi‑Fi **SmartBirdhouse** (пароль `birdhouse1`).
+1. Подключиться к Wi‑Fi **SmartBirdhouse**.
 2. Открыть **http://192.168.4.1** в браузере.
 
 ## Структура
