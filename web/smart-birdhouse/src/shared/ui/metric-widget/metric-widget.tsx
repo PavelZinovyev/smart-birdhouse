@@ -9,10 +9,19 @@ interface MetricWidgetProps {
   unit: string;
   variant: MetricVariant;
   className?: string;
+  loading?: boolean;
 }
 
-export const MetricWidget = ({ label, value, unit, variant, className }: MetricWidgetProps) => {
+export const MetricWidget = ({
+  label,
+  value,
+  unit,
+  variant,
+  className,
+  loading = false,
+}: MetricWidgetProps) => {
   const level = variant === 'temperature' ? getTemperatureLevel(Number(value)) : null;
+  const displayValue = loading ? '—' : value;
 
   return (
     <article
@@ -21,7 +30,7 @@ export const MetricWidget = ({ label, value, unit, variant, className }: MetricW
     >
       <span className={styles.label}>{label}</span>
       <p className={styles.value}>
-        <span className={classNames(styles.number, level && styles[level])}>{value}</span>
+        <span className={classNames(styles.number, level && styles[level])}>{displayValue}</span>
         <span className={styles.unit}>{unit}</span>
       </p>
     </article>

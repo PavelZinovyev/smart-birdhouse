@@ -9,14 +9,8 @@
   margin: 0 0 var(--space-4);
 }
 
-.grid {
+.widgets {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-}
-
-@media (min-width: 520px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
