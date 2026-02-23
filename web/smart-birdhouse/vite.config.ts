@@ -6,6 +6,7 @@ import type { PluginOption } from 'vite';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: './', // относительные пути для раздачи статики с ESP32 (LittleFS)
   plugins: [react(), svgr() as PluginOption],
   resolve: {
     alias: {
