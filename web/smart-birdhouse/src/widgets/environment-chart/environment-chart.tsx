@@ -2,7 +2,7 @@ import { MetricWidget, MetricWidetTitle } from '@/shared/ui';
 import styles from './environment-chart.module.scss';
 
 export const EnvironmentChart = () => {
-  const temperature = 22.5;
+  const temperature = 40;
   const humidity = 68;
 
   return (

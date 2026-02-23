@@ -44,6 +44,22 @@
 
 .root.temperature .number {
   color: var(--metric-temp);
+
+  &.hot {
+    color: var(--metric-temp-hot);
+  }
+
+  &.warm {
+    color: var(--metric-temp-warm);
+  }
+
+  &.cool {
+    color: var(--metric-temp-cool);
+  }
+
+  &.cold {
+    color: var(--metric-temp-cold);
+  }
 }
 
 .temperature {

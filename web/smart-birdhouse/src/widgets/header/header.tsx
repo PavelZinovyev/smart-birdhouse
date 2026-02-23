@@ -5,7 +5,7 @@ export const Header = () => {
     <header className={styles.root}>
       <div className={styles.container}>
         <div className={styles.content}>
-          <h2 className={styles.title}>Smart Birdhouse</h2>
+          <h2 className={styles.title}>Умный скворечник</h2>
         </div>
       </div>
     </header>
