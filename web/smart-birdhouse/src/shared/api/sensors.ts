@@ -1,7 +1,6 @@
 /**
  * API сенсоров ESP32: GET /api/sensors
  * Ответ: { temperature, humidity, battery, distance_mm }
- * Если ESP32 недоступен(ноутбук на обычном Wi‑Fi) — возвращаем мок для разработки
  */
 export interface SensorsData {
   temperature: number;
@@ -12,28 +11,11 @@ export interface SensorsData {
   distance_mm: number;
 }
 
-export interface SensorsResult {
-  data: SensorsData;
-  isMock: boolean;
-}
-
 const SENSORS_URL = '/api/sensors';
-
-/** Мок для разработки, когда не подключены к точке доступа ESP32 */
-function getMockSensorsData(): SensorsData {
-  return {
-    temperature: 22.5,
-    humidity: 55,
-    battery: 78,
-    battery_available: true,
-    distance_mm: -1,
-  };
-}
 
 function normalize(data: SensorsData): SensorsData {
   const d = Number(data.distance_mm);
   const battery = Number(data.battery) || 0;
-  // Датчик есть только если API явно сказал true или (не сказал false и заряд > 0)
   const battery_available =
     data.battery_available === true || (data.battery_available !== false && battery > 0);
   return {
@@ -55,17 +37,10 @@ function isSensorsJson(obj: unknown): obj is SensorsData {
   );
 }
 
-export async function fetchSensors(): Promise<SensorsResult> {
-  try {
-    const res = await fetch(SENSORS_URL);
-    if (!res.ok) return { data: getMockSensorsData(), isMock: true };
-    const text = await res.text();
-    const raw = JSON.parse(text) as unknown;
-    if (isSensorsJson(raw)) {
-      return { data: normalize(raw), isMock: false };
-    }
-    return { data: getMockSensorsData(), isMock: true };
-  } catch {
-    return { data: getMockSensorsData(), isMock: true };
-  }
+export async function fetchSensors(): Promise<SensorsData> {
+  const res = await fetch(SENSORS_URL);
+  if (!res.ok) throw new Error(`Сенсоры: ${res.status}`);
+  const raw = (await res.json()) as unknown;
+  if (!isSensorsJson(raw)) throw new Error('Сенсоры: неверный ответ');
+  return normalize(raw);
 }

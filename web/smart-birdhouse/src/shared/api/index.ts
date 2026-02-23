@@ -1,4 +1,4 @@
-export { fetchSensors, type SensorsData, type SensorsResult } from './sensors';
+export { fetchSensors, type SensorsData } from './sensors';
 export { useSensors } from './use-sensors';
 export { fetchPiStatus, setPiPower, type PiStatus } from './pi';
 export { usePiStatus, usePiPower } from './use-pi-power';
