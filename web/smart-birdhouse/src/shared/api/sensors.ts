@@ -45,16 +45,26 @@ function normalize(data: SensorsData): SensorsData {
   };
 }
 
+function isSensorsJson(obj: unknown): obj is SensorsData {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'temperature' in obj &&
+    'humidity' in obj &&
+    'battery' in obj
+  );
+}
+
 export async function fetchSensors(): Promise<SensorsResult> {
   try {
     const res = await fetch(SENSORS_URL);
     if (!res.ok) return { data: getMockSensorsData(), isMock: true };
-    const contentType = res.headers.get('content-type') ?? '';
-    if (!contentType.includes('application/json')) {
-      return { data: getMockSensorsData(), isMock: true };
+    const text = await res.text();
+    const raw = JSON.parse(text) as unknown;
+    if (isSensorsJson(raw)) {
+      return { data: normalize(raw), isMock: false };
     }
-    const raw = (await res.json()) as SensorsData;
-    return { data: normalize(raw), isMock: false };
+    return { data: getMockSensorsData(), isMock: true };
   } catch {
     return { data: getMockSensorsData(), isMock: true };
   }
