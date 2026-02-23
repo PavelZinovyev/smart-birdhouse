@@ -1,1 +1,5 @@
 node_modules/
+
+# Билд веб-приложения для ESP32 (генерируется: npm run copy-web-to-esp32)
+esp32/data/*
+!esp32/data/.gitkeep
