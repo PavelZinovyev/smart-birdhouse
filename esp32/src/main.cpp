@@ -63,13 +63,20 @@ WebServer server(80);
 static bool spiffsMounted = false;
 
 // ---------- Battery (ADC) ----------
+// Без делителя напряжения на BATTERY_ADC_PIN заряд не измерить: ESP32 питается от 3.3V
+// и не видит напряжение банки. Если пин не подключён — raw ≈ 0, считаем "датчика нет".
+#define BATTERY_ADC_RAW_MIN  30   // ниже = считаем "датчик не подключён"
+
+int getBatteryRaw() {
+  return analogRead(BATTERY_ADC_PIN);
+}
+
 int getBatteryPercent() {
-  // ESP32-S3: 12-bit ADC, 0–3.3V. BATTERY_ADC_PIN через делитель напряжения.
-  int raw = analogRead(BATTERY_ADC_PIN);
-  if (raw <= 0) return 0;
+  int raw = getBatteryRaw();
+  if (raw < BATTERY_ADC_RAW_MIN) return 0;  // не подключён или обрыв
+  // V_adc = 0..3.3V. Делитель: V_bat = V_adc * (R1+R2)/R2 (подстроить под свою схему)
   float v = (3.3f / 4095.0f) * (float)raw;
-  // Подстроить под делитель: vBat = v * (R1+R2)/R2
-  float vBat = v;
+  float vBat = v;  // TODO: vBat = v * (R1+R2)/R2 для вашего делителя
   if (vBat >= BATTERY_VOLTAGE_MAX) return 100;
   if (vBat <= BATTERY_VOLTAGE_MIN) return 0;
   return (int)((vBat - BATTERY_VOLTAGE_MIN) / (BATTERY_VOLTAGE_MAX - BATTERY_VOLTAGE_MIN) * 100.0f);
@@ -134,10 +141,13 @@ void handleGetSensors() {
   if (isnan(temp)) temp = 0.0f;
   if (isnan(hum))  hum = 0.0f;
 
+  bool batteryAvailable = (getBatteryRaw() >= BATTERY_ADC_RAW_MIN);
+
   JsonDocument doc;
   doc["temperature"] = round(temp * 10) / 10.0;
   doc["humidity"]    = round(hum * 10) / 10.0;
   doc["battery"]     = battery;
+  doc["battery_available"] = batteryAvailable;
   doc["distance_mm"] = distance;
 
   server.sendHeader(F("Access-Control-Allow-Origin"), F("*"));

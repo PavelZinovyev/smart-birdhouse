@@ -13,4 +13,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // В режиме dev запросы /api/* проксируем на ESP32 (подключитесь к Wi‑Fi SmartBirdhouse)
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://192.168.4.1',
+        changeOrigin: true,
+      },
+    },
+  },
 });
