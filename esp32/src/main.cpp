@@ -66,17 +66,23 @@ static bool spiffsMounted = false;
 // Без делителя напряжения на BATTERY_ADC_PIN заряд не измерить: ESP32 питается от 3.3V
 // и не видит напряжение банки. Если пин не подключён — raw ≈ 0, считаем "датчика нет".
 #define BATTERY_ADC_RAW_MIN  30   // ниже = считаем "датчик не подключён"
+#define BATTERY_ADC_SAMPLES  8   // усреднение для уменьшения скачков
 
 int getBatteryRaw() {
-  return analogRead(BATTERY_ADC_PIN);
+  long sum = 0;
+  for (int i = 0; i < BATTERY_ADC_SAMPLES; i++) {
+    sum += analogRead(BATTERY_ADC_PIN);
+    delay(2);
+  }
+  return (int)(sum / BATTERY_ADC_SAMPLES);
 }
 
 int getBatteryPercent() {
   int raw = getBatteryRaw();
   if (raw < BATTERY_ADC_RAW_MIN) return 0;  // не подключён или обрыв
-  // V_adc = 0..3.3V. Делитель: V_bat = V_adc * (R1+R2)/R2 (подстроить под свою схему)
+  // V_adc = 0..3.3V. Делитель R1=20k, R2=47k: V_bat = V_adc * (20+47)/47
   float v = (3.3f / 4095.0f) * (float)raw;
-  float vBat = v;  // TODO: vBat = v * (R1+R2)/R2 для вашего делителя
+  float vBat = v * (20.0f + 47.0f) / 47.0f;
   if (vBat >= BATTERY_VOLTAGE_MAX) return 100;
   if (vBat <= BATTERY_VOLTAGE_MIN) return 0;
   return (int)((vBat - BATTERY_VOLTAGE_MIN) / (BATTERY_VOLTAGE_MAX - BATTERY_VOLTAGE_MIN) * 100.0f);
