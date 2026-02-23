@@ -8,7 +8,7 @@ export const MainPage = () => {
   const { data, loading, error, isMock } = useSensors(POLL_INTERVAL_MS);
 
   return (
-    <div>
+    <div className="layout-container stack">
       {error && <p role="alert">Ошибка: {error}</p>}
       {isMock && !loading && (
         <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary, #666)', marginBottom: '0.5rem' }}>

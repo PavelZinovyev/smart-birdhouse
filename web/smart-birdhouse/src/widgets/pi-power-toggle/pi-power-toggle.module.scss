@@ -1,0 +1,88 @@
+/* Полоска под шапкой: одна строка, без карточки */
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 48px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  box-sizing: border-box;
+}
+
+.left {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Switch (тот же вид) */
+.switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--color-border);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.switch[data-checked='true'] {
+  background: var(--color-accent);
+}
+
+.switch:hover {
+  background: var(--color-surface-hover);
+}
+
+.switch[data-checked='true']:hover {
+  background: var(--color-accent-hover);
+}
+
+.thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-text);
+  transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+.switch[data-checked='true'] .thumb {
+  transform: translateX(22px);
+}
+
+.disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}

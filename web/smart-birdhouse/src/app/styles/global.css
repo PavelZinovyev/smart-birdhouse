@@ -83,10 +83,6 @@ body {
 #root {
   min-height: 100vh;
   padding: var(--layout-page-padding);
-
-  @media (min-width: 520px) {
-    padding: 0;
-  }
 }
 
 a {
@@ -156,7 +152,6 @@ code,
   width: 100%;
   max-width: var(--layout-container-max);
   margin-inline: auto;
-  padding-inline: var(--layout-page-padding);
 }
 
 .layout-section {
@@ -190,4 +185,8 @@ code,
 .layout-main {
   padding-top: var(--layout-header-height);
   min-height: 100vh;
+}
+
+.layout-main-content {
+  padding-top: var(--space-4);
 }
