@@ -8,6 +8,7 @@
   flex-direction: column;
   justify-content: center;
   transition: border-color 0.2s;
+  width: 100%;
 }
 
 .root:hover {
@@ -17,7 +18,7 @@
 .label {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-  text-transform: uppercase;
+  text-transform: normal;
   letter-spacing: 0.04em;
   margin-bottom: var(--space-2);
 }
