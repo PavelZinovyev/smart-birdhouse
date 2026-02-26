@@ -6,8 +6,8 @@ interface MetricWidetTitleProps {
 
 export const MetricWidetTitle = ({ label }: MetricWidetTitleProps) => {
   return (
-    <h2 id={label} className={styles.root}>
+    <h3 id={label} className={styles.root}>
       {label}
-    </h2>
+    </h3>
   );
 };
