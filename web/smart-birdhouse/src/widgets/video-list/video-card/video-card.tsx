@@ -1,24 +1,28 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getThumbnailUrl, getVideoUrl, type PiVideoFile } from '@/shared/api';
 import { formatSize } from './lib/format-size';
 import { formatDate } from './lib/format-date';
+import classNames from 'classnames';
 import styles from './video-card.module.scss';
 
-const CARD_WIDTH = '160px';
+export interface VideoCardProps {
+  file: PiVideoFile;
+  /** Компактный режим — превью 60px (для страницы всех видео) */
+  compact?: boolean;
+  /** Если задан — карточка ведёт на этот путь (например /videos), иначе — на файл видео */
+  to?: string;
+  /** Рендерить как div (когда весь виджет уже обёрнут в ссылку) */
+  asDiv?: boolean;
+}
 
-export const VideoCard = ({ file }: { file: PiVideoFile }) => {
+export const VideoCard = ({ file, compact = false, to, asDiv = false }: VideoCardProps) => {
   const thumbUrl = getThumbnailUrl(file.name);
   const videoUrl = getVideoUrl(file.name);
   const [thumbFailed, setThumbFailed] = useState(false);
 
-  return (
-    <a
-      className={styles.root}
-      href={videoUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      title={file.name}
-    >
+  const content = (
+    <>
       <div className={styles.thumbWrap}>
         {!thumbFailed ? (
           <img
@@ -29,19 +33,44 @@ export const VideoCard = ({ file }: { file: PiVideoFile }) => {
             onError={() => setThumbFailed(true)}
           />
         ) : (
-          <div className={styles.placeholder} style={{ width: CARD_WIDTH }}>
-            Нет превью
-          </div>
+          <div className={styles.placeholder}>Нет превью</div>
         )}
+        <div className={styles.playOverlay} aria-hidden>
+          <div className={styles.playIcon} />
+        </div>
       </div>
       <div className={styles.info}>
-        <div className={styles.name} style={{ width: CARD_WIDTH }}>
-          {file.name}
-        </div>
+        <div className={styles.name}>{file.name}</div>
         <div className={styles.meta}>
           {formatSize(file.size)} · {formatDate(file.mtime)}
         </div>
       </div>
+    </>
+  );
+
+  const className = classNames(styles.root, compact && styles.compact);
+
+  if (asDiv) {
+    return <div className={className}>{content}</div>;
+  }
+
+  if (to !== undefined) {
+    return (
+      <Link to={to} className={className} title={file.name}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <a
+      className={className}
+      href={videoUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={file.name}
+    >
+      {content}
     </a>
   );
 };
