@@ -4,7 +4,9 @@
     "copy-web-to-esp32": "npm run build:web && cp -r web/smart-birdhouse/dist/* esp32/data/",
     "generate-secrets": "node scripts/generate-secrets.js",
     "uploadfs": "cd esp32 && ~/.platformio/penv/bin/pio run -t uploadfs",
-    "upload": "npm run generate-secrets && cd esp32 && ~/.platformio/penv/bin/pio run -t upload"
+    "upload": "npm run generate-secrets && cd esp32 && ~/.platformio/penv/bin/pio run -t upload",
+    "erase": "cd esp32 && ~/.platformio/penv/bin/pio run -t erase",
+    "reflash": "npm run generate-secrets && cd esp32 && ~/.platformio/penv/bin/pio run -t erase && ~/.platformio/penv/bin/pio run -t upload"
   },
   "devDependencies": {
     "sass-embedded": "1.97.3",

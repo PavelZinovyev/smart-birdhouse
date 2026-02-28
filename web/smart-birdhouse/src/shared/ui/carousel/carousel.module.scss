@@ -1,0 +1,22 @@
+.root {
+  overflow: auto;
+  display: flex;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.horizontal {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.grid {
+  flex-wrap: wrap;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

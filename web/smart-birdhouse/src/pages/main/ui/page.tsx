@@ -1,6 +1,6 @@
 import { useSensors } from '@/shared/api';
 import { EnvironmentChart } from '@/widgets/environment-chart/environment-chart';
-import { BatteryChart } from '@/widgets';
+import { BatteryChart, VideoList } from '@/widgets';
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -20,6 +20,7 @@ export const MainPage = () => {
         loading={loading}
         batteryAvailable={data?.battery_available ?? true}
       />
+      <VideoList />
     </div>
   );
 };

@@ -4,5 +4,6 @@ export const queryKeys = {
   sensors: ['sensors'] as const,
   pi: {
     status: ['pi', 'status'] as const,
+    videos: ['pi', 'videos'] as const,
   },
 } as const;
