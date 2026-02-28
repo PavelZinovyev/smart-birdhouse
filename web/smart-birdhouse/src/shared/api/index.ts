@@ -4,3 +4,11 @@ export { fetchPiStatus, setPiPower, type PiStatus } from './pi';
 export { usePiStatus, usePiPower } from './use-pi-power';
 export { queryKeys } from './query-keys';
 export { queryClient } from './query-client';
+export {
+  fetchPiVideos,
+  getThumbnailUrl,
+  getVideoUrl,
+  type PiVideoFile,
+  type PiVideosResponse,
+} from './pi-videos';
+export { usePiVideos } from './use-pi-videos';

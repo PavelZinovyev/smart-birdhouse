@@ -13,7 +13,8 @@ import subprocess
 import time
 import os
 import signal
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
+from urllib.parse import unquote
 
 # ---------- PINS ----------
 PI_SIGNAL_PIN = 17
@@ -21,6 +22,7 @@ PI_MODE_PIN = 22
 PI_READY_PIN = 27
 
 VIDEO_DIR = "/home/pavlinmavlin/videos"
+THUMB_DIR = os.path.join(VIDEO_DIR, ".thumbs")
 
 GPIO.setmode(GPIO.BCM)
 
@@ -29,6 +31,7 @@ GPIO.setup(PI_READY_PIN, GPIO.OUT)
 GPIO.setup(PI_MODE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 os.makedirs(VIDEO_DIR, exist_ok=True)
+os.makedirs(THUMB_DIR, exist_ok=True)
 
 process = None
 recording = False
@@ -90,8 +93,57 @@ def list_files():
     return files
 
 
+def list_files_with_meta():
+    """Список видео с именем, размером и временем изменения (для фронта)."""
+    out = []
+    for f in sorted(os.listdir(VIDEO_DIR), reverse=True):
+        if not f.endswith(".mp4"):
+            continue
+        path = os.path.join(VIDEO_DIR, f)
+        try:
+            st = os.stat(path)
+            out.append({"name": f, "size": st.st_size, "mtime": int(st.st_mtime)})
+        except OSError:
+            pass
+    return out
+
+
+def _safe_filename(name):
+    """Только имя .mp4 файла, без пути (защита от path traversal)."""
+    name = os.path.basename(name)
+    return name if name.endswith(".mp4") and name == name.strip() else None
+
+
+def _ensure_thumbnail(video_name):
+    """Генерирует превью в THUMB_DIR если ещё нет. Возвращает путь к jpg или None."""
+    safe = _safe_filename(video_name)
+    if not safe:
+        return None
+    video_path = os.path.join(VIDEO_DIR, safe)
+    thumb_path = os.path.join(THUMB_DIR, os.path.splitext(safe)[0] + ".jpg")
+    if not os.path.isfile(video_path):
+        return None
+    if os.path.isfile(thumb_path):
+        return thumb_path
+    try:
+        subprocess.run([
+            "ffmpeg", "-y", "-i", video_path,
+            "-ss", "00:00:01", "-vframes", "1", "-f", "image2", thumb_path
+        ], capture_output=True, timeout=15)
+        return thumb_path if os.path.isfile(thumb_path) else None
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        return None
+
+
 # ---------- API ----------
 app = Flask(__name__)
+
+
+@app.after_request
+def _cors(resp):
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
+
 
 @app.route("/status")
 def status():
@@ -118,6 +170,34 @@ def api_stop():
 def shutdown():
     GPIO.output(PI_READY_PIN, GPIO.LOW)
     return jsonify({"ok": True})
+
+
+@app.route("/videos")
+def videos_list():
+    """Список видео с метаданными для фронта."""
+    return jsonify({"files": list_files_with_meta()})
+
+
+@app.route("/videos/thumbnail/<path:filename>")
+def video_thumbnail(filename):
+    """Превью кадра видео (генерируется ffmpeg при первом запросе)."""
+    name = unquote(filename).strip()
+    path = _ensure_thumbnail(name)
+    if not path:
+        return "", 404
+    return send_file(path, mimetype="image/jpeg", max_age=86400)
+
+
+@app.route("/videos/<path:filename>")
+def video_file(filename):
+    """Отдача файла видео для просмотра/скачивания."""
+    name = _safe_filename(unquote(filename).strip())
+    if not name:
+        return "", 404
+    path = os.path.join(VIDEO_DIR, name)
+    if not os.path.isfile(path):
+        return "", 404
+    return send_file(path, mimetype="video/mp4", as_attachment=False, download_name=name)
 
 
 # ---------- MAIN ----------
