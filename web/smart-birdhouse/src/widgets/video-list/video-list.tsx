@@ -1,36 +1,37 @@
+import { Link } from 'react-router-dom';
 import { usePiVideos } from '@/shared/api';
-import { Carousel } from '@/shared/ui';
+import { ROUTES } from '@/shared/constants/routes';
 import styles from './video-list.module.scss';
-import { VideoCard } from './video-card/video-card';
-import { MetricWidgetTitle } from '@/shared/ui';
+import { VideoListContent, type VideoListLayout } from './video-list-content';
 
-export const VideoList = () => {
-  const { files, loading, error, isSuccess } = usePiVideos(10_000);
+interface VideoListProps {
+  layout?: VideoListLayout;
+}
 
-  const isEmpty = isSuccess && files.length === 0;
-  const hasVideos = isSuccess && files.length > 0;
+const REFRESH_INTERVAL_MS = 10_000;
 
-  return (
-    <article aria-label="videos">
-      <MetricWidgetTitle label="Видео с камеры" />
-      <div className={styles.content}>
-        {loading && <p className={styles.empty}>Загрузка…</p>}
-        {error && !loading && (
-          <p className={styles.error}>
-            Нет связи с Raspberry Pi (включите Pi и подключите его к Wi‑Fi скворечника).
-          </p>
-        )}
-        {isEmpty && <p className={styles.empty}>Нет записей</p>}
-        {hasVideos && (
-          <Carousel orientation="horizontal" extendBy="var(--space-5)" ariaLabel="videos carousel">
-            {files.map((file) => (
-              <div key={file.name} role="listitem">
-                <VideoCard file={file} />
-              </div>
-            ))}
-          </Carousel>
-        )}
-      </div>
-    </article>
+export const VideoList = ({ layout = 'carousel' }: VideoListProps) => {
+  const { files, loading, error, isSuccess } = usePiVideos(REFRESH_INTERVAL_MS);
+  const isCarouselWithVideos = layout === 'carousel' && isSuccess && files.length > 0;
+
+  const content = (
+    <VideoListContent
+      files={files}
+      loading={loading}
+      error={error}
+      isSuccess={isSuccess}
+      layout={layout}
+      cardsAsLink={!isCarouselWithVideos}
+    />
   );
+
+  if (isCarouselWithVideos) {
+    return (
+      <Link to={ROUTES.VIDEOS} className={styles.widgetLink}>
+        <article aria-label="Видео с камеры">{content}</article>
+      </Link>
+    );
+  }
+
+  return <article aria-label="videos">{content}</article>;
 };
