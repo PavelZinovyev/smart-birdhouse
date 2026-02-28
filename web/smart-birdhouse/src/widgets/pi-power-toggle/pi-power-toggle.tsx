@@ -1,7 +1,7 @@
 import { usePiStatus, usePiPower } from '@/shared/api';
 import classNames from 'classnames';
 import styles from './pi-power-toggle.module.scss';
-import { WidgetLabel } from '@/shared/ui/';
+import { MetricWidgetTitle } from '@/shared/ui';
 
 export const PiPowerToggle = () => {
   const { data: status, isLoading, isError } = usePiStatus(3000);
@@ -28,24 +28,23 @@ export const PiPowerToggle = () => {
   };
 
   return (
-    <section className={styles.root} aria-label="Питание Raspberry Pi">
-      <div className={styles.container}>
-        <div className={styles.left}>
-          <WidgetLabel label={'raspberry pi'} />
-        </div>
+    <article className={styles.root} aria-label="raspi power toggle">
+      <MetricWidgetTitle label="Raspberry Pi" />
+      <div className={styles.content}>
+        <span className={styles.status}>{on ? 'Вкл' : 'Выкл'}</span>
         <span
           className={classNames(styles.switch, disabled && styles.disabled)}
           data-checked={on}
           role="switch"
           aria-checked={on}
-          aria-label={'Питание'}
-          tabIndex={0}
+          aria-label="Питание"
+          tabIndex={disabled ? -1 : 0}
           onClick={handleChange}
           onKeyDown={handleKeyDown}
         >
           <span className={styles.thumb} />
         </span>
       </div>
-    </section>
+    </article>
   );
 };
