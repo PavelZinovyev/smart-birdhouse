@@ -1,16 +1,16 @@
 /**
- * Моки для списка видео — для проверки разных состояний UI.
- * Добавь ?mock=loading|error|empty|videos в URL и перезагрузи страницу.
+ * Моки для списка видео. Включение: ?videos=mock|loading|error|empty
  */
 
+import { getMockValue } from './mock';
 import type { PiVideoFile, PiVideosResponse } from './pi-videos';
 
 export type MockMode = 'loading' | 'error' | 'empty' | 'videos' | null;
 
 export function getMockMode(): MockMode {
-  if (typeof window === 'undefined') return null;
-  const m = new URLSearchParams(window.location.search).get('mock');
-  if (m === 'loading' || m === 'error' || m === 'empty' || m === 'videos') return m;
+  const m = getMockValue('videos');
+  if (m === 'mock') return 'videos';
+  if (m === 'loading' || m === 'error' || m === 'empty') return m;
   return null;
 }
 
