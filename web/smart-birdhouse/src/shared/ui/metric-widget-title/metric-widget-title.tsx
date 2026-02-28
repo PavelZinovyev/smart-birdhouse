@@ -1,10 +1,10 @@
 import styles from './metric-widget-title.module.scss';
 
-interface MetricWidetTitleProps {
+interface MetricWidgetTitleProps {
   label: string;
 }
 
-export const MetricWidetTitle = ({ label }: MetricWidetTitleProps) => {
+export const MetricWidgetTitle = ({ label }: MetricWidgetTitleProps) => {
   return (
     <h3 id={label} className={styles.root}>
       {label}
