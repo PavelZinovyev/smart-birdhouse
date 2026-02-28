@@ -17,8 +17,10 @@
   box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.08);
 }
 
-.root:hover {
-  border-color: var(--color-border);
+@media (hover: hover) {
+  .root:hover {
+    border-color: var(--color-border);
+  }
 }
 
 .status {
@@ -42,12 +44,14 @@
   background: var(--color-accent);
 }
 
-.switch:hover:not(.disabled) {
-  background: var(--color-surface-hover);
-}
+@media (hover: hover) {
+  .switch:hover:not(.disabled) {
+    background: var(--color-surface-hover);
+  }
 
-.switch[data-checked='true']:hover:not(.disabled) {
-  background: var(--color-accent-hover);
+  .switch[data-checked='true']:hover:not(.disabled) {
+    background: var(--color-accent-hover);
+  }
 }
 
 .thumb {

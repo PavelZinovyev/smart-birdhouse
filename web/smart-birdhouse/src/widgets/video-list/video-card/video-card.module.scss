@@ -13,10 +13,12 @@
     filter 0.2s ease;
 }
 
-.root:hover {
-  transform: translateY(-6px);
-  border-color: var(--color-border);
-  filter: drop-shadow(0 12px 3px rgba(0, 0, 0, 0.4));
+@media (hover: hover) {
+  .root:hover {
+    transform: translateY(-6px);
+    border-color: var(--color-border);
+    filter: drop-shadow(0 12px 3px rgba(0, 0, 0, 0.4));
+  }
 }
 
 .root:active {
@@ -103,9 +105,11 @@
   overflow: hidden;
 }
 
-.root:hover .thumbWrap img,
-.root:hover .thumbWrap .placeholder {
-  transform: scale(1.08);
+@media (hover: hover) {
+  .root:hover .thumbWrap img,
+  .root:hover .thumbWrap .placeholder {
+    transform: scale(1.08);
+  }
 }
 
 .thumb {
@@ -139,8 +143,10 @@
   transition: opacity 0.2s ease;
 }
 
-.root:hover .playOverlay {
-  opacity: 1;
+@media (hover: hover) {
+  .root:hover .playOverlay {
+    opacity: 1;
+  }
 }
 
 .playIcon {
@@ -155,8 +161,10 @@
   transition: transform 0.2s ease;
 }
 
-.root:hover .playIcon {
-  transform: scale(1.1);
+@media (hover: hover) {
+  .root:hover .playIcon {
+    transform: scale(1.1);
+  }
 }
 
 .playIcon::before {
