@@ -26,14 +26,21 @@ export const VideoList = ({ layout = 'carousel' }: VideoListProps) => {
     />
   );
 
+  const title = <MetricWidgetTitle label="Видео с камеры" />;
+
   if (isCarouselWithVideos) {
     return (
       <Link to={ROUTES.VIDEOS} className={styles.widgetLink}>
-        <MetricWidgetTitle label="Видео с камеры" />
+        {title}
         <article aria-label="Видео с камеры">{content}</article>
       </Link>
     );
   }
 
-  return <article aria-label="videos">{content}</article>;
+  return (
+    <article aria-label="videos">
+      {title}
+      {content}
+    </article>
+  );
 };
