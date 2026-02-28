@@ -14,19 +14,21 @@
 
 .container {
   max-width: var(--layout-container-max);
-  width: 100%;
-  margin-inline: auto;
-  box-sizing: border-box;
-}
-
-.content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
   transition: padding 0.2s;
   margin: 0;
-  padding: 12px var(--layout-page-padding);
+  padding: 8px var(--layout-page-padding);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: var(--color-text);
 }
 
 .title {
@@ -35,10 +37,11 @@
   color: var(--color-text);
   text-decoration: none;
   margin: 0;
+  place-content: center;
 }
 
 .title:hover {
-  color: var(--color-accent);
+  color: var(--color-text);
 }
 
 .nav {
@@ -52,7 +55,9 @@
   text-decoration: none;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .navLink:hover {

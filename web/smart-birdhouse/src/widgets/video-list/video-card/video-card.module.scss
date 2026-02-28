@@ -24,36 +24,72 @@
   filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.25));
 }
 
+/* Карусель на главной — крупные плитки */
 .compact {
+  min-width: unset;
+  width: 160px;
+  border: 1px solid var(--color-border);
+}
+
+.compact .thumbWrap {
+  width: 160px;
+  height: 90px;
+  aspect-ratio: unset;
+}
+
+.compact .info {
+  padding: var(--space-1) var(--space-2);
+}
+
+.compact .name {
+  font-size: 12px;
+}
+
+.compact .meta {
+  font-size: 10px;
+}
+
+.compact .playIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.compact .playIcon::before {
+  border-width: 4px 0 4px 8px;
+  margin-left: 2px;
+}
+
+/* Сетка на /videos — мелкие плитки */
+.compactSmall {
   min-width: unset;
   width: 80px;
   border: 1px solid var(--color-border);
 }
 
-.compact .thumbWrap {
+.compactSmall .thumbWrap {
   width: 80px;
   height: 45px;
   aspect-ratio: unset;
 }
 
-.compact .info {
+.compactSmall .info {
   padding: var(--space-1);
 }
 
-.compact .name {
+.compactSmall .name {
   font-size: 10px;
 }
 
-.compact .meta {
+.compactSmall .meta {
   font-size: 9px;
 }
 
-.compact .playIcon {
+.compactSmall .playIcon {
   width: 24px;
   height: 24px;
 }
 
-.compact .playIcon::before {
+.compactSmall .playIcon::before {
   border-width: 3px 0 3px 6px;
   margin-left: 2px;
 }

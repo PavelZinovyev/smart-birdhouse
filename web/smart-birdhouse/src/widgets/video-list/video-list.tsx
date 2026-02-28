@@ -3,6 +3,7 @@ import { usePiVideos } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import styles from './video-list.module.scss';
 import { VideoListContent, type VideoListLayout } from './video-list-content';
+import { MetricWidgetTitle } from '@/shared/ui';
 
 interface VideoListProps {
   layout?: VideoListLayout;
@@ -28,6 +29,7 @@ export const VideoList = ({ layout = 'carousel' }: VideoListProps) => {
   if (isCarouselWithVideos) {
     return (
       <Link to={ROUTES.VIDEOS} className={styles.widgetLink}>
+        <MetricWidgetTitle label="Видео с камеры" />
         <article aria-label="Видео с камеры">{content}</article>
       </Link>
     );
