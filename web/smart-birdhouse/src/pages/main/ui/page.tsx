@@ -1,6 +1,6 @@
 import { useSensors } from '@/shared/api';
 import { EnvironmentChart } from '@/widgets/environment-chart/environment-chart';
-import { BatteryChart, VideoList } from '@/widgets';
+import { BatteryChart, PiPowerToggle, VideoList } from '@/widgets';
 
 const POLL_INTERVAL_MS = 5000;
 
@@ -10,6 +10,7 @@ export const MainPage = () => {
   return (
     <div className="layout-container stack">
       {error && <p role="alert">Ошибка: {error}</p>}
+      <PiPowerToggle />
       <EnvironmentChart
         temperature={data?.temperature ?? 0}
         humidity={data?.humidity ?? 0}
