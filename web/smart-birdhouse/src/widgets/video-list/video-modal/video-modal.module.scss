@@ -1,0 +1,20 @@
+.wrap {
+  padding: var(--space-6);
+  padding-top: var(--space-10);
+}
+
+.title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text);
+  word-break: break-all;
+}
+
+.video {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  border-radius: var(--radius-md);
+  background: #000;
+}

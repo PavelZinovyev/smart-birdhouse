@@ -14,8 +14,8 @@ interface VideoListContentProps {
   error: string | null;
   isSuccess: boolean;
   layout: VideoListLayout;
-  /** false — карточки в карусели не ссылки (виджет обёрнут в ссылку) */
   cardsAsLink?: boolean;
+  onVideoClick?: (file: PiVideoFile) => void;
 }
 
 export const VideoListContent = ({
@@ -25,6 +25,7 @@ export const VideoListContent = ({
   isSuccess,
   layout,
   cardsAsLink = true,
+  onVideoClick,
 }: VideoListContentProps) => {
   const isEmpty = isSuccess && files.length === 0;
   const hasVideos = isSuccess && files.length > 0;
@@ -50,9 +51,11 @@ export const VideoListContent = ({
       )}
       {isEmpty && <p className={styles.empty}>нет записей</p>}
       {hasVideos && layout === 'carousel' && (
-        <VideoListCarousel files={files} cardsAsLink={cardsAsLink} />
+        <VideoListCarousel files={files} cardsAsLink={cardsAsLink} onVideoClick={onVideoClick} />
       )}
-      {hasVideos && layout === 'grid' && <VideoListGrid files={files} />}
+      {hasVideos && layout === 'grid' && (
+        <VideoListGrid files={files} onVideoClick={onVideoClick} />
+      )}
     </div>
   );
 };
