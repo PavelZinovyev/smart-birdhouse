@@ -1,6 +1,10 @@
 /**
  * API управления питанием Raspberry Pi на ESP32: GET /api/pi/status, POST /api/pi/power
+ * Моки: ?pi=mock|loading|error
  */
+
+import { getMockValue, createNeverResolvingPromise } from './mock';
+import { MOCK_PI_STATUS } from './mock-data';
 
 export interface PiStatus {
   pi_power: boolean;
@@ -15,6 +19,11 @@ const PI_POWER_URL = '/api/pi/power';
 const PI_POWER_TIMEOUT_MS = 12_000;
 
 export async function fetchPiStatus(): Promise<PiStatus | null> {
+  const mock = getMockValue('pi');
+  if (mock === 'loading') return createNeverResolvingPromise();
+  if (mock === 'error') throw new Error('Нет связи с Raspberry Pi.');
+  if (mock === 'mock') return MOCK_PI_STATUS;
+
   try {
     const res = await fetch(PI_STATUS_URL);
     if (!res.ok) return null;

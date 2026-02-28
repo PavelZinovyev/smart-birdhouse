@@ -1,7 +1,11 @@
 /**
  * API сенсоров ESP32: GET /api/sensors
  * Ответ: { temperature, humidity, battery, distance_mm }
+ * Моки: ?sensors=mock|loading|error
  */
+import { getMockValue, createNeverResolvingPromise } from './mock';
+import { MOCK_SENSORS } from './mock-data';
+
 export interface SensorsData {
   temperature: number;
   humidity: number;
@@ -38,6 +42,11 @@ function isSensorsJson(obj: unknown): obj is SensorsData {
 }
 
 export async function fetchSensors(): Promise<SensorsData> {
+  const mock = getMockValue('sensors');
+  if (mock === 'loading') return createNeverResolvingPromise();
+  if (mock === 'error') throw new Error('Нет связи с сенсорами.');
+  if (mock === 'mock') return MOCK_SENSORS;
+
   const res = await fetch(SENSORS_URL);
   if (!res.ok) throw new Error(`Сенсоры: ${res.status}`);
   const raw = (await res.json()) as unknown;
