@@ -1,4 +1,4 @@
-import { MetricWidget, MetricWidetTitle } from '@/shared/ui';
+import { MetricWidget, MetricWidgetTitle } from '@/shared/ui';
 import styles from './environment-chart.module.scss';
 
 interface EnvironmentChartProps {
@@ -13,8 +13,8 @@ export const EnvironmentChart = ({
   loading = false,
 }: EnvironmentChartProps) => {
   return (
-    <section className={styles.root} aria-labelledby="environment-heading">
-      <MetricWidetTitle label="Окружающая среда" />
+    <article aria-label="environment-heading">
+      <MetricWidgetTitle label="Окружающая среда" />
       <div className={styles.widgets}>
         <MetricWidget
           label="Температура"
@@ -31,6 +31,6 @@ export const EnvironmentChart = ({
           variant="humidity"
         />
       </div>
-    </section>
+    </article>
   );
 };

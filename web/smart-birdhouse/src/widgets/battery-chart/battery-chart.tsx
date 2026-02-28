@@ -1,4 +1,4 @@
-import { MetricWidetTitle } from '@/shared/ui';
+import { MetricWidgetTitle } from '@/shared/ui';
 import { BatteryIcon } from '../battery-icon/battery-icon';
 import styles from './battery-chart.module.scss';
 
@@ -20,8 +20,8 @@ export const BatteryChart = ({
   const displayValue = showPlaceholder ? '—' : value;
 
   return (
-    <article className={className} aria-label={'Заряд батареи'}>
-      <MetricWidetTitle label="Батарея" />
+    <article className={className} aria-label={'battery-chart'}>
+      <MetricWidgetTitle label="Батарея" />
       <div className={styles.root}>
         <div className={styles.row}>
           <p className={styles.value}>
