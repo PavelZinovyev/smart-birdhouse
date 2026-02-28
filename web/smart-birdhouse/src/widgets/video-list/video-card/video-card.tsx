@@ -10,6 +10,18 @@ export interface VideoCardProps {
   compactSmall?: boolean;
   to?: string;
   asDiv?: boolean;
+  onVideoClick?: (file: PiVideoFile) => void;
+}
+
+function handleCardKeyDown(
+  e: React.KeyboardEvent,
+  onVideoClick: (file: PiVideoFile) => void,
+  file: PiVideoFile,
+) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    onVideoClick(file);
+  }
 }
 
 export const VideoCard = ({
@@ -18,6 +30,7 @@ export const VideoCard = ({
   compactSmall = false,
   to,
   asDiv = false,
+  onVideoClick,
 }: VideoCardProps) => {
   const videoUrl = getVideoUrl(file.name);
   const cn = classNames(
@@ -25,6 +38,25 @@ export const VideoCard = ({
     compact && styles.compact,
     compactSmall && styles.compactSmall,
   );
+
+  if (onVideoClick !== undefined) {
+    return (
+      <div
+        className={cn}
+        role="button"
+        tabIndex={0}
+        title={file.name}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onVideoClick(file);
+        }}
+        onKeyDown={(e) => handleCardKeyDown(e, onVideoClick, file)}
+      >
+        <VideoCardContent file={file} />
+      </div>
+    );
+  }
 
   if (asDiv)
     return (
