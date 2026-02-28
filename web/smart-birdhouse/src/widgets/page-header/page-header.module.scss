@@ -1,0 +1,20 @@
+.root {
+  margin-bottom: var(--space-4);
+  width: 100%;
+  max-width: var(--layout-container-max);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--color-text);
+}

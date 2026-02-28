@@ -11,7 +11,7 @@ export const VideoListGrid = ({ files }: VideoListGridProps) => {
     <div className={styles.root} role="list">
       {files.map((file) => (
         <div key={file.name} role="listitem">
-          <VideoCard file={file} compact />
+          <VideoCard file={file} compactSmall />
         </div>
       ))}
     </div>

@@ -1,4 +1,3 @@
-import { MetricWidgetTitle } from '@/shared/ui';
 import { VideoListGrid } from '../video-list-grid/video-list-grid';
 import { VideoListCarousel } from '../video-list-carousel/video-list-carousel';
 import { type PiVideoFile } from '@/shared/api/pi-videos';
@@ -29,7 +28,6 @@ export const VideoListContent = ({
 
   return (
     <>
-      <MetricWidgetTitle label="Видео с камеры" />
       <div>
         {loading && <p className={styles.empty}>загрузка…</p>}
         {error && !loading && (

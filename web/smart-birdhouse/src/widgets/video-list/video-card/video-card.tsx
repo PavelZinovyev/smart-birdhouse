@@ -8,15 +8,19 @@ import styles from './video-card.module.scss';
 
 export interface VideoCardProps {
   file: PiVideoFile;
-  /** Компактный режим — превью 60px (для страницы всех видео) */
   compact?: boolean;
-  /** Если задан — карточка ведёт на этот путь (например /videos), иначе — на файл видео */
+  compactSmall?: boolean;
   to?: string;
-  /** Рендерить как div (когда весь виджет уже обёрнут в ссылку) */
   asDiv?: boolean;
 }
 
-export const VideoCard = ({ file, compact = false, to, asDiv = false }: VideoCardProps) => {
+export const VideoCard = ({
+  file,
+  compact = false,
+  compactSmall = false,
+  to,
+  asDiv = false,
+}: VideoCardProps) => {
   const thumbUrl = getThumbnailUrl(file.name);
   const videoUrl = getVideoUrl(file.name);
   const [thumbFailed, setThumbFailed] = useState(false);
@@ -48,7 +52,11 @@ export const VideoCard = ({ file, compact = false, to, asDiv = false }: VideoCar
     </>
   );
 
-  const className = classNames(styles.root, compact && styles.compact);
+  const className = classNames(
+    styles.root,
+    compact && styles.compact,
+    compactSmall && styles.compactSmall,
+  );
 
   if (asDiv) {
     return <div className={className}>{content}</div>;
