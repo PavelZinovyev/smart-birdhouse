@@ -1,10 +1,14 @@
-import { usePiStatus, usePiPower } from '@/shared/api';
+import { usePiPower, usePiStatus } from '@/shared/api';
 import classNames from 'classnames';
 import styles from './pi-power-toggle.module.scss';
 import { MetricWidgetTitle } from '@/shared/ui';
 
-export const PiPowerToggle = () => {
-  const { data: status, isLoading, isError } = usePiStatus(3000);
+export type PiPowerToggleProps = Pick<
+  ReturnType<typeof usePiStatus>,
+  'data' | 'isLoading' | 'isError'
+>;
+
+export const PiPowerToggle = ({ data: status, isLoading, isError }: PiPowerToggleProps) => {
   const { turnOnManual, turnOff, isPending } = usePiPower();
 
   const on = status?.pi_power ?? false;
