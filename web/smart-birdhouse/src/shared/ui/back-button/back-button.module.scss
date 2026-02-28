@@ -15,10 +15,12 @@
     background 0.2s;
 }
 
-.button:hover {
-  background: var(--color-surface-hover);
-  border-color: var(--color-border);
-  color: var(--color-text);
+@media (hover: hover) {
+  .button:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-border);
+    color: var(--color-text);
+  }
 }
 
 .button svg {

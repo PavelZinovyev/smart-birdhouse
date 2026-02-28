@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getThumbnailUrl, getVideoUrl, type PiVideoFile } from '@/shared/api';
-import { formatSize } from './lib/format-size';
-import { formatDate } from './lib/format-date';
+import { getVideoUrl, type PiVideoFile } from '@/shared/api';
 import classNames from 'classnames';
 import styles from './video-card.module.scss';
+import { VideoCardContent } from './video-card-content';
 
 export interface VideoCardProps {
   file: PiVideoFile;
@@ -21,64 +19,30 @@ export const VideoCard = ({
   to,
   asDiv = false,
 }: VideoCardProps) => {
-  const thumbUrl = getThumbnailUrl(file.name);
   const videoUrl = getVideoUrl(file.name);
-  const [thumbFailed, setThumbFailed] = useState(false);
-
-  const content = (
-    <>
-      <div className={styles.thumbWrap}>
-        {!thumbFailed ? (
-          <img
-            className={styles.thumb}
-            src={thumbUrl}
-            alt=""
-            loading="lazy"
-            onError={() => setThumbFailed(true)}
-          />
-        ) : (
-          <div className={styles.placeholder}>Нет превью</div>
-        )}
-        <div className={styles.playOverlay} aria-hidden>
-          <div className={styles.playIcon} />
-        </div>
-      </div>
-      <div className={styles.info}>
-        <div className={styles.name}>{file.name}</div>
-        <div className={styles.meta}>
-          {formatSize(file.size)} · {formatDate(file.mtime)}
-        </div>
-      </div>
-    </>
-  );
-
-  const className = classNames(
+  const cn = classNames(
     styles.root,
     compact && styles.compact,
     compactSmall && styles.compactSmall,
   );
 
-  if (asDiv) {
-    return <div className={className}>{content}</div>;
-  }
-
-  if (to !== undefined) {
+  if (asDiv)
     return (
-      <Link to={to} className={className} title={file.name}>
-        {content}
+      <div className={cn}>
+        <VideoCardContent file={file} />
+      </div>
+    );
+
+  if (to !== undefined)
+    return (
+      <Link to={to} className={cn} title={file.name}>
+        <VideoCardContent file={file} />
       </Link>
     );
-  }
 
   return (
-    <a
-      className={className}
-      href={videoUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      title={file.name}
-    >
-      {content}
+    <a className={cn} href={videoUrl} target="_blank" rel="noopener noreferrer" title={file.name}>
+      <VideoCardContent file={file} />
     </a>
   );
 };

@@ -11,8 +11,10 @@
   width: 100%;
 }
 
-.root:hover {
-  border-color: var(--color-border);
+@media (hover: hover) {
+  .root:hover {
+    border-color: var(--color-border);
+  }
 }
 
 .label {

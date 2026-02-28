@@ -5,7 +5,9 @@
   cursor: pointer;
 }
 
-.widgetLink:hover {
-  color: inherit;
-  text-decoration: none;
+@media (hover: hover) {
+  .widgetLink:hover {
+    color: inherit;
+    text-decoration: none;
+  }
 }

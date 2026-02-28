@@ -1,5 +1,5 @@
 import { Carousel } from '@/shared/ui';
-import { VideoCardSkeleton } from '../video-card-skeleton';
+import { VideoCardSkeleton } from '../video-card/video-card-skeleton';
 import { type VideoListLayout } from '../video-list-content/video-list-content';
 import styles from './video-list-skeleton.module.scss';
 
