@@ -11,6 +11,32 @@
   box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.08);
 }
 
+.charging {
+  border-color: var(--color-accent-green, #22c55e);
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.4),
+    0 0 16px rgba(34, 197, 94, 0.45);
+  animation: battery-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes battery-pulse {
+  0% {
+    box-shadow:
+      0 0 0 1px rgba(34, 197, 94, 0.4),
+      0 0 4px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(34, 197, 94, 0.7),
+      0 0 18px rgba(34, 197, 94, 0.8);
+  }
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(34, 197, 94, 0.4),
+      0 0 4px rgba(34, 197, 94, 0.3);
+  }
+}
+
 .label {
   font-size: var(--text-sm);
   color: var(--color-text-muted);

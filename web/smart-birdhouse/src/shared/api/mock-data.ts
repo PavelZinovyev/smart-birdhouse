@@ -18,4 +18,10 @@ export const MOCK_SENSORS: SensorsData = {
   battery_percent: 85,
   battery_available: true,
   distance_mm: 120,
+  battery_voltage: 4.15,
+  battery_current: 0,
+  battery_charging: false,
+  battery_charge_done: true,
+  battery_power_present: false,
+  battery_charge_state: 3,
 };

@@ -1,7 +1,8 @@
 /**
  * API сенсоров ESP32: GET /api/sensors
  * Контракт: temperature, humidity, distance_mm, battery (V), battery_percent (0–100),
- * battery_available, battery_voltage, battery_current.
+ * battery_available, battery_voltage, battery_current, battery_charging, battery_charge_done,
+ * battery_power_present, battery_charge_state.
  * Моки: ?sensors=mock|loading|error
  */
 import { getMockValue, createNeverResolvingPromise } from './mock';
@@ -16,6 +17,10 @@ export interface SensorsData {
   distance_mm: number;
   battery_voltage?: number;
   battery_current?: number;
+  battery_charging?: boolean;
+  battery_charge_done?: boolean;
+  battery_power_present?: boolean;
+  battery_charge_state?: number;
 }
 
 const SENSORS_URL = '/api/sensors';
@@ -27,6 +32,16 @@ function normalize(data: SensorsData): SensorsData {
   if (!Number.isFinite(battery_percent) || battery_percent > 100) battery_percent = 0;
   const battery_available =
     data.battery_available === true || (data.battery_available !== false && battery > 0.5);
+  const battery_voltage = Number.isFinite(Number(data.battery_voltage))
+    ? Number(data.battery_voltage)
+    : undefined;
+  const battery_current = Number.isFinite(Number(data.battery_current))
+    ? Number(data.battery_current)
+    : undefined;
+  const battery_charge_state = Number.isFinite(Number(data.battery_charge_state))
+    ? Number(data.battery_charge_state)
+    : undefined;
+
   return {
     temperature: Number(data.temperature) || 0,
     humidity: Number(data.humidity) || 0,
@@ -34,12 +49,12 @@ function normalize(data: SensorsData): SensorsData {
     battery_percent: battery_available ? battery_percent : 0,
     battery_available,
     distance_mm: Number.isFinite(d) ? d : -1,
-    battery_voltage: Number.isFinite(Number(data.battery_voltage))
-      ? Number(data.battery_voltage)
-      : undefined,
-    battery_current: Number.isFinite(Number(data.battery_current))
-      ? Number(data.battery_current)
-      : undefined,
+    battery_voltage,
+    battery_current,
+    battery_charging: battery_available && data.battery_charging === true,
+    battery_charge_done: battery_available && data.battery_charge_done === true,
+    battery_power_present: data.battery_power_present === true,
+    battery_charge_state,
   };
 }
 
