@@ -38,7 +38,7 @@ export const BatteryChart = ({
           </p>
           <BatteryIcon percent={batteryAvailable ? value : 0} isCharging={showChargeAnimation} />
         </div>
-        {displayVoltage && <p className={styles.hint}>vBat = {displayVoltage} В</p>}
+        {displayVoltage && <p className={styles.hint}>Напряжение: {displayVoltage} В</p>}
         {!batteryAvailable && !loading && (
           <p className={styles.hint}>Нет датчика (BQ25895 не обнаружен или не подключён)</p>
         )}
