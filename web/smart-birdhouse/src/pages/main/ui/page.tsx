@@ -28,6 +28,9 @@ export const MainPage = () => {
         voltage={data?.battery_voltage ?? data?.battery}
         loading={loading}
         batteryAvailable={data?.battery_available ?? true}
+        isCharging={data?.battery_charging}
+        isChargeDone={data?.battery_charge_done}
+        isExternalPowerPresent={data?.battery_power_present}
       />
       {showVideoList && <VideoList />}
     </div>

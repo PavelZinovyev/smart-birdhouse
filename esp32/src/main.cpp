@@ -204,6 +204,12 @@ void handleGetSensors() {
   uint8_t rawVbat  = read8(REG_VBAT) & 0x7F;
   uint8_t rawIchgr = read8(REG_ICHGR) & 0x7F;
   uint8_t status   = read8(REG_STATUS);
+  uint8_t vbusStat = (status >> 5) & 0x07;  
+  uint8_t chrgStat = (status >> 3) & 0x03; 
+
+  bool externalPowerPresent = (vbusStat == 0x1 || vbusStat == 0x2); 
+  bool batteryCharging      = (chrgStat == 0x1 || chrgStat == 0x2);  
+  bool batteryChargeDone    = (chrgStat == 0x3);                     
   Serial.printf("[sensors] t=%.1f h=%.1f d=%d | vBat=%.2fV raw=0x%02X ichg=%.0fmA raw=0x%02X soc=%u%% | REG0B=0x%02X\n",
     temp, hum, distance, vBat, rawVbat, iBat, rawIchgr, soc, status);
 
@@ -216,6 +222,10 @@ void handleGetSensors() {
   doc["battery_voltage"]   = batteryVal;
   doc["battery_current"]   = round(iBat);
   doc["battery_percent"]   = soc;
+  doc["battery_charging"]      = batteryOk && batteryCharging;
+  doc["battery_charge_done"]   = batteryOk && batteryChargeDone;
+  doc["battery_power_present"] = externalPowerPresent;
+  doc["battery_charge_state"]  = (int)chrgStat;
 
   server.sendHeader(F("Access-Control-Allow-Origin"), F("*"));
   server.send(200, F("application/json"), doc.as<String>());
