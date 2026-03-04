@@ -4,20 +4,24 @@ import styles from './battery-chart.module.scss';
 
 interface BatteryChartProps {
   value: number;
+  voltage?: number;
   loading?: boolean;
-  /** false = датчик не подключён (питание только 3.3V, без делителя на ADC) */
+  /** false = датчик BQ25895 не обнаружен или не подключён */
   batteryAvailable?: boolean;
   className?: string;
 }
 
 export const BatteryChart = ({
   value,
+  voltage,
   loading = false,
   batteryAvailable = true,
   className,
 }: BatteryChartProps) => {
   const showPlaceholder = loading || !batteryAvailable;
   const displayValue = showPlaceholder ? '—' : value;
+   const displayVoltage =
+    !showPlaceholder && typeof voltage === 'number' ? voltage.toFixed(2) : null;
 
   return (
     <article className={className} aria-label={'battery-chart'}>
@@ -30,8 +34,11 @@ export const BatteryChart = ({
           </p>
           <BatteryIcon percent={batteryAvailable ? value : 0} />
         </div>
+        {displayVoltage && (
+          <p className={styles.hint}>vBat = {displayVoltage} В</p>
+        )}
         {!batteryAvailable && !loading && (
-          <p className={styles.hint}>Нет датчика (добавьте делитель с BAT+ на ADC-пин)</p>
+          <p className={styles.hint}>Нет датчика (BQ25895 не обнаружен или не подключён)</p>
         )}
       </div>
     </article>

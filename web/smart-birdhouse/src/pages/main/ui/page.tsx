@@ -24,7 +24,8 @@ export const MainPage = () => {
         loading={loading}
       />
       <BatteryChart
-        value={data?.battery ?? 0}
+        value={data?.battery_percent ?? 0}
+        voltage={data?.battery_voltage ?? data?.battery}
         loading={loading}
         batteryAvailable={data?.battery_available ?? true}
       />
