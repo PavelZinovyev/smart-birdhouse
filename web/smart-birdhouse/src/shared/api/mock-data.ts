@@ -15,6 +15,7 @@ export const MOCK_SENSORS: SensorsData = {
   temperature: 22.5,
   humidity: 65,
   battery: 4.15,
+  battery_percent: 85,
   battery_available: true,
   distance_mm: 120,
 };
