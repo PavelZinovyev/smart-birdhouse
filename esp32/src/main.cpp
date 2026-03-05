@@ -54,12 +54,14 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 // ---------- Settings ----------
 const int BIRD_TRIGGER_DISTANCE = 50;
 const int STABLE_COUNT_REQUIRED = 2;
+const unsigned long PI_SHUTDOWN_DELAY_MS = 20000;  // задержка перед отключением питания Pi после запроса shutdown (мс)
 
 // ---------- State ----------
 enum SystemState {
   IDLE,
   POWERING_PI,
   RECORDING,
+  SHUTTING_DOWN_PI,
   COOLDOWN
 };
 SystemState state = IDLE;
@@ -253,9 +255,17 @@ void handlePiPower() {
     state = POWERING_PI;
     stateStartTime = millis();
   } else {
-    piPowerOff();
-    state = COOLDOWN;
-    stateStartTime = millis();
+    // мягкое выключение: ждем PI_SHUTDOWN_DELAY_MS в состоянии SHUTTING_DOWN_PI,
+    // чтобы дать Raspberry Pi время корректно завершить работу операционки
+    if (digitalRead(PI_POWER_PIN) == LOW) {
+      Serial.println(F("🔁 Soft shutdown requested via API, waiting before power off"));
+      state = SHUTTING_DOWN_PI;
+      stateStartTime = millis();
+    } else {
+      // питание уже выключено — просто обновим состояние
+      state = COOLDOWN;
+      stateStartTime = millis();
+    }
   }
 
   server.sendHeader(F("Access-Control-Allow-Origin"), F("*"));
@@ -410,6 +420,14 @@ void loop() {
 
     case RECORDING:
       if (digitalRead(PI_READY_PIN) == LOW) {
+        Serial.println(F("🔁 Pi requested shutdown, waiting before power off"));
+        state = SHUTTING_DOWN_PI;
+        stateStartTime = now;
+      }
+      break;
+
+    case SHUTTING_DOWN_PI:
+      if (now - stateStartTime > PI_SHUTDOWN_DELAY_MS) {
         piPowerOff();
         state = COOLDOWN;
         stateStartTime = now;

@@ -24,6 +24,10 @@ PI_READY_PIN = 27
 VIDEO_DIR = "/home/pavlinmavlin/videos"
 THUMB_DIR = os.path.join(VIDEO_DIR, ".thumbs")
 
+# ---------- AUDIO ----------
+# ALSA: plughw:0,0 часто надёжнее hw:0,0. Если микрофон на card 1 — AUDIO_DEVICE=plughw:1,0.
+AUDIO_DEVICE = os.getenv("AUDIO_DEVICE", "plughw:0,0")
+
 GPIO.setmode(GPIO.BCM)
 
 GPIO.setup(PI_SIGNAL_PIN, GPIO.IN)
@@ -44,6 +48,14 @@ if GPIO.input(PI_MODE_PIN) == GPIO.HIGH:
 else:
     print("🐦 AUTO MODE")
 
+
+def request_os_shutdown():
+    """запрашивает мягкое выключение распи"""
+    try:
+        subprocess.Popen(["sudo", "shutdown", "-h", "now"])
+    except Exception as e:
+        print(f"failed to request os shutdown: {e}")
+
 # ---------- RECORD ----------
 def start_recording():
     global process, recording
@@ -61,6 +73,10 @@ def start_recording():
         "--framerate", "30",
         "--codec", "libav",
         "--libav-format", "mp4",
+        "--libav-audio",
+        "--audio-source", "alsa",
+        "--audio-codec", "aac",
+        "--audio-device", AUDIO_DEVICE,
         "--bitrate", "30000000",
         "--nopreview",
         "-o", filename
@@ -168,7 +184,10 @@ def api_stop():
 
 @app.route("/shutdown", methods=["POST"])
 def shutdown():
+    if recording:
+        stop_recording()
     GPIO.output(PI_READY_PIN, GPIO.LOW)
+    request_os_shutdown()
     return jsonify({"ok": True})
 
 
@@ -223,6 +242,7 @@ def gpio_loop():
             if signal_state == GPIO.LOW and recording:
                 stop_recording()
                 GPIO.output(PI_READY_PIN, GPIO.LOW)
+                request_os_shutdown()
 
         time.sleep(0.2)
 
