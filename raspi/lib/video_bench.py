@@ -19,6 +19,9 @@ HEIGHT = 1080
 FRAMERATE = 30
 BITRATE = 30000000   # 30 Mbps
 
+# Те же параметры, что в bird_recorder.py — запись с микрофоном (ALSA).
+AUDIO_DEVICE = os.getenv("AUDIO_DEVICE", "plughw:0,0")
+
 os.makedirs(VIDEO_DIR, exist_ok=True)
 
 
@@ -89,21 +92,25 @@ def main():
     """
     timestamp = int(time.time())
 
-    # --- 1. Сразу MP4 через libav ---
+    # --- 1. Сразу MP4 через libav (та же команда, что в bird_recorder.py: видео + звук) ---
     mp4_file = os.path.join(VIDEO_DIR, f"video_{timestamp}_direct.mp4")
     cmd_mp4 = [
         "rpicam-vid",
-        "-t", str(DURATION*1000),
+        "-t", str(DURATION * 1000),
         "--width", str(WIDTH),
         "--height", str(HEIGHT),
         "--framerate", str(FRAMERATE),
         "--codec", "libav",
         "--libav-format", "mp4",
+        "--libav-audio",
+        "--audio-source", "alsa",
+        "--audio-codec", "aac",
+        "--audio-device", AUDIO_DEVICE,
         "--bitrate", str(BITRATE),
         "--nopreview",
         "-o", mp4_file
     ]
-    run_bench("MP4_DIRECT", cmd_mp4)
+    run_bench("MP4_DIRECT (video+audio)", cmd_mp4)
 
     # --- 2. H264 + конвертация ---
     h264_file = os.path.join(VIDEO_DIR, f"video_{timestamp}.h264")
