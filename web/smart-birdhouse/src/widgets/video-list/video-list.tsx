@@ -15,6 +15,7 @@ interface VideoListProps {
 }
 
 const REFRESH_INTERVAL_MS = 10_000;
+const LABEL = 'Видео с камеры';
 
 export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: VideoListProps) => {
   const { files, loading, error, isSuccess } = usePiVideos(REFRESH_INTERVAL_MS);
@@ -34,14 +35,14 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: VideoL
     />
   );
 
-  const title = <MetricWidgetTitle label="Видео с камеры" />;
+  const title = <MetricWidgetTitle label={LABEL} />;
 
   if (isCarouselWithVideos) {
     return (
       <>
         <Link to={ROUTES.VIDEOS} className={styles.widgetLink}>
           {title}
-          <article aria-label="Видео с камеры">{content}</article>
+          <article aria-label={LABEL}>{content}</article>
         </Link>
         <VideoModal file={selectedVideo} onClose={() => setSelectedVideo(null)} />
       </>
@@ -50,7 +51,7 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: VideoL
 
   return (
     <>
-      <article aria-label="videos">{content}</article>
+      <article aria-label={LABEL}>{content}</article>
       <VideoModal file={selectedVideo} onClose={() => setSelectedVideo(null)} />
     </>
   );
