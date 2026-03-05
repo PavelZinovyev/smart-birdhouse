@@ -4,17 +4,19 @@ import { usePiVideos } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
 import type { PiVideoFile } from '@/shared/api';
 import styles from './video-list.module.scss';
+import type { VideoListGridVariant } from './video-list-grid/video-list-grid';
 import { VideoListContent, type VideoListLayout } from './video-list-content';
 import { VideoModal } from './video-modal';
 import { MetricWidgetTitle } from '@/shared/ui';
 
 interface VideoListProps {
   layout?: VideoListLayout;
+  gridVariant?: VideoListGridVariant;
 }
 
 const REFRESH_INTERVAL_MS = 10_000;
 
-export const VideoList = ({ layout = 'carousel' }: VideoListProps) => {
+export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: VideoListProps) => {
   const { files, loading, error, isSuccess } = usePiVideos(REFRESH_INTERVAL_MS);
   const [selectedVideo, setSelectedVideo] = useState<PiVideoFile | null>(null);
   const isCarouselWithVideos = layout === 'carousel' && isSuccess && files.length > 0;
@@ -26,6 +28,7 @@ export const VideoList = ({ layout = 'carousel' }: VideoListProps) => {
       error={error}
       isSuccess={isSuccess}
       layout={layout}
+      gridVariant={gridVariant}
       cardsAsLink={!isCarouselWithVideos}
       onVideoClick={setSelectedVideo}
     />
@@ -47,10 +50,7 @@ export const VideoList = ({ layout = 'carousel' }: VideoListProps) => {
 
   return (
     <>
-      <article aria-label="videos">
-        {title}
-        {content}
-      </article>
+      <article aria-label="videos">{content}</article>
       <VideoModal file={selectedVideo} onClose={() => setSelectedVideo(null)} />
     </>
   );

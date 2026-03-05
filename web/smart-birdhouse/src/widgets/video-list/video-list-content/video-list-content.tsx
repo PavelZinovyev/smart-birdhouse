@@ -1,4 +1,5 @@
-import { VideoListGrid } from '../video-list-grid/video-list-grid';
+import classNames from 'classnames';
+import { VideoListGrid, type VideoListGridVariant } from '../video-list-grid/video-list-grid';
 import { VideoListCarousel } from '../video-list-carousel/video-list-carousel';
 import { VideoListSkeleton } from '../video-list-skeleton';
 import { type PiVideoFile } from '@/shared/api/pi-videos';
@@ -14,6 +15,7 @@ interface VideoListContentProps {
   error: string | null;
   isSuccess: boolean;
   layout: VideoListLayout;
+  gridVariant?: VideoListGridVariant;
   cardsAsLink?: boolean;
   onVideoClick?: (file: PiVideoFile) => void;
 }
@@ -24,6 +26,7 @@ export const VideoListContent = ({
   error,
   isSuccess,
   layout,
+  gridVariant = 'small',
   cardsAsLink = true,
   onVideoClick,
 }: VideoListContentProps) => {
@@ -40,8 +43,13 @@ export const VideoListContent = ({
             </div>
           </div>
         ) : (
-          <div className={gridStyles.root}>
-            <VideoListSkeleton layout={layout} />
+          <div
+            className={classNames(
+              gridStyles.root,
+              gridVariant === 'large' && gridStyles.rootLarge,
+            )}
+          >
+            <VideoListSkeleton layout={layout} gridVariant={gridVariant} />
           </div>
         ))}
       {error && !loading && (
@@ -54,7 +62,11 @@ export const VideoListContent = ({
         <VideoListCarousel files={files} cardsAsLink={cardsAsLink} onVideoClick={onVideoClick} />
       )}
       {hasVideos && layout === 'grid' && (
-        <VideoListGrid files={files} onVideoClick={onVideoClick} />
+        <VideoListGrid
+          files={files}
+          variant={gridVariant}
+          onVideoClick={onVideoClick}
+        />
       )}
     </div>
   );

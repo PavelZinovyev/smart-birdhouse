@@ -35,7 +35,7 @@
 
 .compact .thumbWrap {
   width: 160px;
-  height: 90px;
+  height: 100px;
   aspect-ratio: unset;
 }
 
@@ -94,6 +94,12 @@
 .compactSmall .playIcon::before {
   border-width: 3px 0 3px 6px;
   margin-left: 2px;
+}
+
+/* Крупные плитки на /videos — 2 в ряд */
+.gridLarge {
+  width: 100%;
+  min-width: 0;
 }
 
 .thumbWrap {
