@@ -6,6 +6,11 @@
   margin: -12px 0;
 }
 
+.rootLarge {
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
 .label {
   font-size: var(--text-sm);
   color: var(--color-text-muted);

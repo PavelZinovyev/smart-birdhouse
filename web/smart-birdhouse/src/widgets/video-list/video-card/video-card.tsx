@@ -8,6 +8,7 @@ export interface VideoCardProps {
   file: PiVideoFile;
   compact?: boolean;
   compactSmall?: boolean;
+  large?: boolean;
   to?: string;
   asDiv?: boolean;
   onVideoClick?: (file: PiVideoFile) => void;
@@ -28,6 +29,7 @@ export const VideoCard = ({
   file,
   compact = false,
   compactSmall = false,
+  large = false,
   to,
   asDiv = false,
   onVideoClick,
@@ -37,6 +39,7 @@ export const VideoCard = ({
     styles.root,
     compact && styles.compact,
     compactSmall && styles.compactSmall,
+    large && styles.gridLarge,
   );
 
   if (onVideoClick !== undefined) {

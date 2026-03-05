@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import styles from './video-card-skeleton.module.scss';
 
-type SkeletonVariant = 'compact' | 'compactSmall';
+type SkeletonVariant = 'compact' | 'compactSmall' | 'large';
 
 interface VideoCardSkeletonProps {
   variant?: SkeletonVariant;
@@ -10,7 +10,11 @@ interface VideoCardSkeletonProps {
 export const VideoCardSkeleton = ({ variant = 'compact' }: VideoCardSkeletonProps) => {
   return (
     <div
-      className={classNames(styles.root, variant === 'compactSmall' && styles.compactSmall)}
+      className={classNames(
+        styles.root,
+        variant === 'compactSmall' && styles.compactSmall,
+        variant === 'large' && styles.large,
+      )}
       aria-hidden
     >
       <div className={styles.thumb} />
