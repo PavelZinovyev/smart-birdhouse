@@ -1,7 +1,6 @@
+import type { VideoListGridVariant, VideoListLayout } from '@/shared/types';
 import { Carousel } from '@/shared/ui';
 import { VideoCardSkeleton } from '../video-card/video-card-skeleton';
-import type { VideoListGridVariant } from '../video-list-grid/video-list-grid';
-import { type VideoListLayout } from '../video-list-content/video-list-content';
 import styles from './video-list-skeleton.module.scss';
 
 const CAROUSEL_SKELETON_COUNT = 5;

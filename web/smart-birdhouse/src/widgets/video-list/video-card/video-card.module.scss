@@ -43,6 +43,12 @@
   padding: var(--space-1) var(--space-2);
 }
 
+.compact .deleteButton {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px;
+}
+
 .compact .name {
   font-size: 12px;
 }
@@ -76,6 +82,17 @@
 
 .compactSmall .info {
   padding: var(--space-1);
+}
+
+.compactSmall .deleteButton {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 2px;
+}
+
+.compactSmall .deleteButton svg {
+  width: 14px;
+  height: 14px;
 }
 
 .compactSmall .name {
@@ -138,6 +155,42 @@
   transition: transform 0.3s ease;
 }
 
+.infoTop {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.deleteButton {
+  flex-shrink: 0;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-border-subtle);
+  color: var(--color-text-dim);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.deleteButton:active:not(:disabled) {
+  background: rgba(180, 50, 50, 0.3);
+  color: #b43232;
+}
+
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .playOverlay {
   position: absolute;
   inset: 0;
@@ -184,10 +237,13 @@
 }
 
 .info {
+  position: relative;
   padding: var(--space-2) var(--space-3);
 }
 
 .name {
+  flex: 1;
+  min-width: 0;
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text);

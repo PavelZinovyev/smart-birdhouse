@@ -1,21 +1,26 @@
 import { Carousel } from '@/shared/ui';
 import { VideoCard } from '../video-card/video-card';
-import { type PiVideoFile } from '@/shared/api/pi-videos';
+import { type IPiVideoFile } from '@/shared/api/pi-videos';
 import { ROUTES } from '@/shared/constants/routes';
 import styles from './video-list-carousel.module.scss';
 
-interface VideoListCarouselProps {
-  files: PiVideoFile[];
-  /** false — карточки не ссылки (весь виджет обёрнут в ссылку) */
+interface IVideoListCarouselProps {
+  files: IPiVideoFile[];
   cardsAsLink?: boolean;
-  onVideoClick?: (file: PiVideoFile) => void;
+  isDeleting?: boolean;
+  deletingName?: string | null;
+  onVideoClick?: (file: IPiVideoFile) => void;
+  onDelete?: (file: IPiVideoFile) => void;
 }
 
 export const VideoListCarousel = ({
   files,
   cardsAsLink = true,
+  isDeleting,
+  deletingName,
   onVideoClick,
-}: VideoListCarouselProps) => {
+  onDelete,
+}: IVideoListCarouselProps) => {
   return (
     <div className={styles.root}>
       <Carousel
@@ -32,6 +37,8 @@ export const VideoListCarousel = ({
               to={cardsAsLink && !onVideoClick ? ROUTES.VIDEOS : undefined}
               asDiv={!cardsAsLink && !onVideoClick}
               onVideoClick={onVideoClick}
+              onDelete={onDelete}
+              isDeleting={isDeleting && deletingName === file.name}
             />
           </div>
         ))}
