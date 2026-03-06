@@ -20,7 +20,7 @@ const LABEL = 'Видео с камеры';
 export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: VideoListProps) => {
   const { files, loading, error, isSuccess } = usePiVideos(REFRESH_INTERVAL_MS);
   const [selectedVideo, setSelectedVideo] = useState<PiVideoFile | null>(null);
-  const isCarouselWithVideos = layout === 'carousel' && isSuccess && files.length > 0;
+  const isCarouselWithVideos = layout === 'carousel';
 
   const content = (
     <VideoListContent
