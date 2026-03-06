@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { usePiVideos } from '@/shared/api';
+import { useDeletePiVideo, usePiVideos } from '@/shared/api';
 import { ROUTES } from '@/shared/constants/routes';
-import type { PiVideoFile } from '@/shared/api';
-import styles from './video-list.module.scss';
-import type { VideoListGridVariant } from './video-list-grid/video-list-grid';
-import { VideoListContent, type VideoListLayout } from './video-list-content';
-import { VideoModal } from './video-modal';
+import type { IPiVideoFile } from '@/shared/api';
+import type { VideoListGridVariant, VideoListLayout } from '@/shared/types';
 import { MetricWidgetTitle } from '@/shared/ui';
+import styles from './video-list.module.scss';
+import { VideoListContent } from './video-list-content';
+import { VideoModal } from './video-modal';
 
-interface VideoListProps {
+interface IVideoListProps {
   layout?: VideoListLayout;
   gridVariant?: VideoListGridVariant;
 }
@@ -17,10 +17,13 @@ interface VideoListProps {
 const REFRESH_INTERVAL_MS = 10_000;
 const LABEL = 'Видео с камеры';
 
-export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: VideoListProps) => {
+export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideoListProps) => {
   const { files, loading, error, isSuccess } = usePiVideos(REFRESH_INTERVAL_MS);
-  const [selectedVideo, setSelectedVideo] = useState<PiVideoFile | null>(null);
+  const { deleteVideo, isDeleting, deletingName } = useDeletePiVideo();
+  const [selectedVideo, setSelectedVideo] = useState<IPiVideoFile | null>(null);
   const isCarouselWithVideos = layout === 'carousel';
+
+  const handleDelete = (file: IPiVideoFile) => deleteVideo(file.name);
 
   const content = (
     <VideoListContent
@@ -32,6 +35,9 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: VideoL
       gridVariant={gridVariant}
       cardsAsLink={!isCarouselWithVideos}
       onVideoClick={setSelectedVideo}
+      onDelete={handleDelete}
+      isDeleting={isDeleting}
+      deletingName={deletingName}
     />
   );
 

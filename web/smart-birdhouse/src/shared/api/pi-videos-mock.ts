@@ -3,7 +3,7 @@
  */
 
 import { getMockValue } from './mock';
-import type { PiVideoFile, PiVideosResponse } from './pi-videos';
+import type { IPiVideoFile, PiVideosResponse } from './pi-videos';
 
 export type MockMode = 'loading' | 'error' | 'empty' | 'videos' | null;
 
@@ -16,7 +16,7 @@ export function getMockMode(): MockMode {
 
 const NOW = Math.floor(Date.now() / 1000);
 
-export const MOCK_VIDEOS: PiVideoFile[] = [
+export const MOCK_VIDEOS: IPiVideoFile[] = [
   { name: 'video_2025_02_28_08_15.mp4', size: 12_345_678, mtime: NOW - 3600 },
   { name: 'video_2025_02_28_10_30.mp4', size: 8_500_000, mtime: NOW - 1800 },
   { name: 'video_2025_02_27_18_45.mp4', size: 25_000_000, mtime: NOW - 86400 },

@@ -1,23 +1,25 @@
 import classNames from 'classnames';
-import { VideoListGrid, type VideoListGridVariant } from '../video-list-grid/video-list-grid';
+import { type IPiVideoFile } from '@/shared/api/pi-videos';
+import type { VideoListGridVariant, VideoListLayout } from '@/shared/types';
+import { VideoListGrid } from '../video-list-grid/video-list-grid';
 import { VideoListCarousel } from '../video-list-carousel/video-list-carousel';
 import { VideoListSkeleton } from '../video-list-skeleton';
-import { type PiVideoFile } from '@/shared/api/pi-videos';
 import carouselStyles from '../video-list-carousel/video-list-carousel.module.scss';
 import gridStyles from '../video-list-grid/video-list-grid.module.scss';
 import styles from './video-list-content.module.scss';
 
-export type VideoListLayout = 'carousel' | 'grid';
-
-interface VideoListContentProps {
-  files: PiVideoFile[];
+interface IVideoListContentProps {
+  files: IPiVideoFile[];
   loading: boolean;
   error: string | null;
   isSuccess: boolean;
   layout: VideoListLayout;
   gridVariant?: VideoListGridVariant;
   cardsAsLink?: boolean;
-  onVideoClick?: (file: PiVideoFile) => void;
+  isDeleting?: boolean;
+  deletingName?: string | null;
+  onVideoClick?: (file: IPiVideoFile) => void;
+  onDelete?: (file: IPiVideoFile) => void;
 }
 
 export const VideoListContent = ({
@@ -29,9 +31,13 @@ export const VideoListContent = ({
   gridVariant = 'small',
   cardsAsLink = true,
   onVideoClick,
-}: VideoListContentProps) => {
+  onDelete,
+  isDeleting,
+  deletingName,
+}: IVideoListContentProps) => {
   const isEmpty = isSuccess && files.length === 0;
   const hasVideos = isSuccess && files.length > 0;
+  const isError = error && !loading;
 
   return (
     <div>
@@ -44,28 +50,35 @@ export const VideoListContent = ({
           </div>
         ) : (
           <div
-            className={classNames(
-              gridStyles.root,
-              gridVariant === 'large' && gridStyles.rootLarge,
-            )}
+            className={classNames(gridStyles.root, gridVariant === 'large' && gridStyles.rootLarge)}
           >
             <VideoListSkeleton layout={layout} gridVariant={gridVariant} />
           </div>
         ))}
-      {error && !loading && (
+      {isError && (
         <p className={styles.error}>
           нет связи с raspberry pi(включите pi и подключите его к wi-fi скворечника SmartBirdhouse)
         </p>
       )}
       {isEmpty && <p className={styles.empty}>нет записей</p>}
       {hasVideos && layout === 'carousel' && (
-        <VideoListCarousel files={files} cardsAsLink={cardsAsLink} onVideoClick={onVideoClick} />
+        <VideoListCarousel
+          files={files}
+          cardsAsLink={cardsAsLink}
+          onVideoClick={onVideoClick}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+          deletingName={deletingName}
+        />
       )}
       {hasVideos && layout === 'grid' && (
         <VideoListGrid
           files={files}
           variant={gridVariant}
           onVideoClick={onVideoClick}
+          onDelete={onDelete}
+          isDeleting={isDeleting}
+          deletingName={deletingName}
         />
       )}
     </div>

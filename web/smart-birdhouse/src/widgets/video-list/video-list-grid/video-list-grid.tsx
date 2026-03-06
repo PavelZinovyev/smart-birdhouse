@@ -1,17 +1,26 @@
 import classNames from 'classnames';
+import { type IPiVideoFile } from '@/shared/api/pi-videos';
+import type { VideoListGridVariant } from '@/shared/types';
 import styles from './video-list-grid.module.scss';
 import { VideoCard } from '../video-card/video-card';
-import { type PiVideoFile } from '@/shared/api/pi-videos';
 
-export type VideoListGridVariant = 'small' | 'large';
-
-interface VideoListGridProps {
-  files: PiVideoFile[];
+interface IVideoListGridProps {
+  files: IPiVideoFile[];
   variant?: VideoListGridVariant;
-  onVideoClick?: (file: PiVideoFile) => void;
+  isDeleting?: boolean;
+  deletingName?: string | null;
+  onVideoClick?: (file: IPiVideoFile) => void;
+  onDelete?: (file: IPiVideoFile) => void;
 }
 
-export const VideoListGrid = ({ files, variant = 'small', onVideoClick }: VideoListGridProps) => {
+export const VideoListGrid = ({
+  files,
+  variant = 'small',
+  isDeleting,
+  deletingName,
+  onVideoClick,
+  onDelete,
+}: IVideoListGridProps) => {
   const isLarge = variant === 'large';
 
   return (
@@ -23,6 +32,8 @@ export const VideoListGrid = ({ files, variant = 'small', onVideoClick }: VideoL
             compactSmall={!isLarge}
             large={isLarge}
             onVideoClick={onVideoClick}
+            onDelete={onDelete}
+            isDeleting={isDeleting && deletingName === file.name}
           />
         </div>
       ))}

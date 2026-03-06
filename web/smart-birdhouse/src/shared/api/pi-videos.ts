@@ -5,14 +5,14 @@
 import { PI_VIDEOS_BASE_URL } from '@/shared/constants/pi';
 import { getMockMode, createMockResponse, MOCK_NO_THUMB_NAMES } from './pi-videos-mock';
 
-export interface PiVideoFile {
+export interface IPiVideoFile {
   name: string;
   size: number;
   mtime: number;
 }
 
 export interface PiVideosResponse {
-  files: PiVideoFile[];
+  files: IPiVideoFile[];
 }
 
 const VIDEOS_URL = `${PI_VIDEOS_BASE_URL}/videos`;
@@ -58,4 +58,23 @@ export function getThumbnailUrl(name: string): string {
 
 export function getVideoUrl(name: string): string {
   return `${PI_VIDEOS_BASE_URL}/videos/${encodeURIComponent(name)}`;
+}
+
+/**
+ * Удаляет видео с распи
+ */
+export async function deletePiVideo(name: string): Promise<{ ok: boolean }> {
+  const mock = getMockMode();
+  if (mock !== null) {
+    throw new Error('Удаление недоступно в режиме демо');
+  }
+
+  const url = `${PI_VIDEOS_BASE_URL}/videos/${encodeURIComponent(name)}`;
+  const res = await fetch(url, { method: 'DELETE' });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `Ошибка удаления: ${res.status}`);
+  }
+  const data = (await res.json()) as { ok?: boolean };
+  return { ok: data?.ok ?? true };
 }

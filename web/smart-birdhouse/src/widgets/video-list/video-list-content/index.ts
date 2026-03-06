@@ -1,1 +1,1 @@
-export { VideoListContent, type VideoListLayout } from './video-list-content';
+export { VideoListContent } from './video-list-content';

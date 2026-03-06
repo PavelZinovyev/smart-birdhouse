@@ -1,9 +1,9 @@
 import { Modal } from '@/shared/ui';
-import { getVideoUrl, type PiVideoFile } from '@/shared/api';
+import { getVideoUrl, type IPiVideoFile } from '@/shared/api';
 import styles from './video-modal.module.scss';
 
 export interface VideoModalProps {
-  file: PiVideoFile | null;
+  file: IPiVideoFile | null;
   onClose: () => void;
 }
 
