@@ -17,7 +17,7 @@ npm run upload              # заливка прошивки ESP32
 | `npm run copy-web-to-esp32` | Собрать фронт, скопировать в `esp32/data/` |
 | `npm run uploadfs` | Залить веб в SPIFFS на ESP32 |
 | `npm run upload` | Залить прошивку (C++) в ESP32 |
-
+,
 Перед `upload` и `uploadfs` закройте Serial Monitor.
 
 **Только веб:** `npm run copy-web-to-esp32` → `npm run uploadfs`  

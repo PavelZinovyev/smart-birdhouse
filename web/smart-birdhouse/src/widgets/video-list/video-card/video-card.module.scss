@@ -155,35 +155,26 @@
   transition: transform 0.3s ease;
 }
 
-.infoTop {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
 .deleteButton {
-  flex-shrink: 0;
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  z-index: 1;
   min-width: 36px;
   min-height: 36px;
   padding: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-border-subtle);
-  color: var(--color-text-dim);
+  color: #c53030;
   cursor: pointer;
   transition:
     background 0.2s ease,
+    color 0.2s ease,
     opacity 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .deleteButton:active:not(:disabled) {
-  background: rgba(180, 50, 50, 0.3);
-  color: #b43232;
+  color: #fff;
 }
 
 .deleteButton:disabled {
@@ -242,8 +233,6 @@
 }
 
 .name {
-  flex: 1;
-  min-width: 0;
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text);
