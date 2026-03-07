@@ -43,6 +43,7 @@
   padding: var(--space-1) var(--space-2);
 }
 
+.compact .downloadButton,
 .compact .deleteButton {
   min-width: 32px;
   min-height: 32px;
@@ -84,12 +85,14 @@
   padding: var(--space-1);
 }
 
+.compactSmall .downloadButton,
 .compactSmall .deleteButton {
   min-width: 28px;
   min-height: 28px;
   padding: 2px;
 }
 
+.compactSmall .downloadButton svg,
 .compactSmall .deleteButton svg {
   width: 14px;
   height: 14px;
@@ -155,6 +158,31 @@
   transition: transform 0.3s ease;
 }
 
+.downloadButton {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  z-index: 1;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+}
+
+.downloadButton:active {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 .deleteButton {
   position: absolute;
   top: var(--space-1);
@@ -163,7 +191,12 @@
   min-width: 36px;
   min-height: 36px;
   padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.5);
   color: #c53030;
   cursor: pointer;
   transition:
