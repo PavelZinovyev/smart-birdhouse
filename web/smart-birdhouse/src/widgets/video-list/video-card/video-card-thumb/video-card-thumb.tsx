@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { getThumbnailUrl } from '@/shared/api';
-import TrashIcon from '@/shared/assets/trash-icon.svg?react';
 import styles from '../video-card.module.scss';
+import { VideoCardDeleteButton } from '../video-card-delete-button';
+import { VideoCardDownloadButton } from '../video-card-download-button';
 
 interface VideoCardThumbProps {
   fileName: string;
@@ -13,18 +14,9 @@ export const VideoCardThumb = ({ fileName, onDelete, isDeleting }: VideoCardThum
   const [thumbFailed, setThumbFailed] = useState(false);
   const thumbUrl = getThumbnailUrl(fileName);
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!onDelete || isDeleting) return;
-    if (window.confirm(`Удалить видео «${fileName}»?`)) {
-      onDelete();
-    }
-  };
-
   return (
     <div className={styles.thumbWrap}>
-      {!thumbFailed ? (
+      {!thumbFailed && (
         <img
           className={styles.thumb}
           src={thumbUrl}
@@ -32,20 +24,11 @@ export const VideoCardThumb = ({ fileName, onDelete, isDeleting }: VideoCardThum
           loading="lazy"
           onError={() => setThumbFailed(true)}
         />
-      ) : (
-        <div className={styles.placeholder}>Нет превью</div>
       )}
+      {thumbFailed && <div className={styles.placeholder}>Нет превью</div>}
+      <VideoCardDownloadButton fileName={fileName} />
       {onDelete && (
-        <button
-          type="button"
-          className={styles.deleteButton}
-          onClick={handleDeleteClick}
-          disabled={isDeleting}
-          aria-label="Удалить видео"
-          title="Удалить"
-        >
-          <TrashIcon />
-        </button>
+        <VideoCardDeleteButton fileName={fileName} onDelete={onDelete} isDeleting={isDeleting} />
       )}
       <div className={styles.playOverlay} aria-hidden>
         <div className={styles.playIcon} />
