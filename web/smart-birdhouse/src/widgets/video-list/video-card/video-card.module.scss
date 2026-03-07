@@ -171,10 +171,12 @@
   justify-content: center;
   border: none;
   border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
   color: #fff;
   cursor: pointer;
-  transition: background 0.2s ease, opacity 0.2s ease;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   text-decoration: none;
 }
@@ -196,7 +198,7 @@
   justify-content: center;
   border: none;
   border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.2);
   color: #c53030;
   cursor: pointer;
   transition:
