@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build:web": "cd web/smart-birdhouse && npm run build",
-    "copy-web-to-esp32": "npm run build:web && cp -r web/smart-birdhouse/dist/* esp32/data/",
+    "copy-web-to-esp32": "npm run build:web && mkdir -p esp32/data && rm -rf esp32/data/* && cp -r web/smart-birdhouse/dist/* esp32/data/",
     "generate-secrets": "node scripts/generate-secrets.js",
     "uploadfs": "cd esp32 && ~/.platformio/penv/bin/pio run -t uploadfs",
     "upload": "npm run generate-secrets && cd esp32 && ~/.platformio/penv/bin/pio run -t upload",

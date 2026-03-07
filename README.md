@@ -1,24 +1,28 @@
 # Smart Birdhouse
 
-ESP32-S3 (сенсоры, Wi‑Fi AP, API) + React-фронт на телефоне. Опционально Raspberry Pi для видео.
+esp32s3(сенсоры, wifi ap, api) + react на телефоне. Опционально распи для видео
 
 ## Деплой
 
 Команды — из **корня репозитория**. ESP32 по USB.
 
 ```bash
-npm run copy-web-to-esp32   # сборка фронта → esp32/data/
-npm run uploadfs            # заливка веба в ESP32 (то, что видит телефон)
-npm run upload              # заливка прошивки ESP32
+# очистить spiffs
+npm run erase
+# залить прошивку(после erase флеш пустая)
+npm run upload
+# собрать веб и залить только его
+npm run copy-web-to-esp32
+npm run uploadfs
 ```
 
-| Команда | Назначение |
-|---------|------------|
-| `npm run copy-web-to-esp32` | Собрать фронт, скопировать в `esp32/data/` |
-| `npm run uploadfs` | Залить веб в SPIFFS на ESP32 |
-| `npm run upload` | Залить прошивку (C++) в ESP32 |
-,
-Перед `upload` и `uploadfs` закройте Serial Monitor.
+## Обновить веб
+
+находясь в папке web:
+
+npm run copy-web-to-esp32
+npm run uploadfs
+npm run upload
 
 **Только веб:** `npm run copy-web-to-esp32` → `npm run uploadfs`  
 **Только прошивка:** `npm run upload`

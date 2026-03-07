@@ -37,11 +37,14 @@
   --space-8: 32px;
   --space-10: 40px;
 
-  --layout-page-padding: var(--space-6);
+  --layout-page-padding: var(--space-8);
   --layout-section-gap: var(--space-6);
   --layout-container-max: 1200px;
   --layout-header-height: 44px;
   --z-index-main-layer: 10;
+
+  --header-bg: rgba(30, 30, 30, 0.92);
+  --header-bg-scrolled: #1e1e1e;
 
   --metric-temp: #f59e0b;
   --metric-temp-bg: rgba(245, 158, 11, 0.12);
@@ -168,7 +171,7 @@ code,
 }
 
 .layout-main {
-  padding-top: var(--layout-header-height);
+  padding-top: calc(env(safe-area-inset-top, 0px) + var(--layout-header-height));
   min-height: 100vh;
 }
 
