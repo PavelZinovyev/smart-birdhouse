@@ -13,7 +13,7 @@ import subprocess
 import time
 import os
 import signal
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, Response
 from urllib.parse import unquote
 
 # ---------- PINS ----------
@@ -159,6 +159,18 @@ app = Flask(__name__)
 def _cors(resp):
     resp.headers["Access-Control-Allow-Origin"] = "*"
     return resp
+
+
+@app.before_request
+def _cors_preflight():
+    """Ответ на preflight (OPTIONS) для cross-origin DELETE и др. — иначе браузер даёт status 0."""
+    if request.method == "OPTIONS":
+        r = Response(status=204)
+        r.headers["Access-Control-Allow-Origin"] = "*"
+        r.headers["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS"
+        r.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        r.headers["Access-Control-Max-Age"] = "86400"
+        return r
 
 
 @app.route("/status")
