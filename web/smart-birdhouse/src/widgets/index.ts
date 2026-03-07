@@ -4,3 +4,4 @@ export { EnvironmentChart } from './environment-chart/environment-chart';
 export { BatteryChart } from './battery-chart/battery-chart';
 export { PiPowerToggle } from './pi-power-toggle';
 export { VideoList } from './video-list';
+export { VideosApiLog } from './videos-api-log/videos-api-log';

@@ -3,6 +3,7 @@
  */
 
 import { PI_VIDEOS_BASE_URL } from '@/shared/constants/pi';
+import { logVideosGet, logVideosDelete } from './videos-api-log';
 import { getMockMode, createMockResponse, MOCK_NO_THUMB_NAMES } from './pi-videos-mock';
 
 export interface IPiVideoFile {
@@ -32,14 +33,23 @@ export async function fetchPiVideos(): Promise<PiVideosResponse | null> {
 
   try {
     const res = await fetch(VIDEOS_URL);
+    const body = await res.text();
+    logVideosGet(res.status, body);
     if (!res.ok) return null;
-    const raw = (await res.json()) as unknown;
+    let raw: unknown;
+    try {
+      raw = JSON.parse(body) as unknown;
+    } catch {
+      return null;
+    }
     if (typeof raw === 'object' && raw !== null && 'files' in raw) {
       const files = (raw as PiVideosResponse).files;
       return { files: Array.isArray(files) ? files : [] };
     }
     return null;
-  } catch {
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logVideosGet(0, `fetch error: ${msg}`);
     return null;
   }
 }
@@ -70,11 +80,23 @@ export async function deletePiVideo(name: string): Promise<{ ok: boolean }> {
   }
 
   const url = `${PI_VIDEOS_BASE_URL}/videos/${encodeURIComponent(name)}`;
-  const res = await fetch(url, { method: 'DELETE' });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Ошибка удаления: ${res.status}`);
+  try {
+    const res = await fetch(url, { method: 'DELETE' });
+    const body = await res.text();
+    logVideosDelete(res.status, body);
+    if (!res.ok) {
+      throw new Error(body || `Ошибка удаления: ${res.status}`);
+    }
+    let data: { ok?: boolean };
+    try {
+      data = JSON.parse(body) as { ok?: boolean };
+    } catch {
+      data = {};
+    }
+    return { ok: data?.ok ?? true };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    logVideosDelete(0, `fetch error: ${msg}`);
+    throw err;
   }
-  const data = (await res.json()) as { ok?: boolean };
-  return { ok: data?.ok ?? true };
 }
