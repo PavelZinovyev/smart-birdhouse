@@ -1,7 +1,10 @@
 import { Outlet } from 'react-router-dom';
+import { useScrollTop } from '@/shared/hooks';
 import { Header, PageHeader } from '@/widgets';
 
 export const Layout = () => {
+  useScrollTop();
+
   return (
     <>
       <Header />
