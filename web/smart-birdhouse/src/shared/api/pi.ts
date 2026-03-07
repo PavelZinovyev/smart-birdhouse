@@ -28,7 +28,7 @@ export async function fetchPiStatus(): Promise<PiStatus | null> {
 
   try {
     const res = await fetch(PI_STATUS_URL);
-    if (!res.ok) return null;
+    if (!res.ok) throw new Error(`pi status ${res.status}`);
     const raw = (await res.json()) as unknown;
     if (typeof raw === 'object' && raw !== null && 'pi_power' in raw) {
       return {
@@ -37,9 +37,9 @@ export async function fetchPiStatus(): Promise<PiStatus | null> {
         manual: Boolean((raw as PiStatus).manual),
       };
     }
-    return null;
-  } catch {
-    return null;
+    throw new Error('invalid pi status response');
+  } catch (err) {
+    throw err instanceof Error ? err : new Error(String(err));
   }
 }
 

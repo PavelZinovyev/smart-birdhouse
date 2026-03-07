@@ -70,6 +70,10 @@ export function getVideoUrl(name: string): string {
   return `${PI_VIDEOS_BASE_URL}/videos/${encodeURIComponent(name)}`;
 }
 
+export function getVideoDownloadUrl(name: string): string {
+  return `${getVideoUrl(name)}?download=1`;
+}
+
 /**
  * Удаляет видео с распи
  */

@@ -8,6 +8,7 @@ export {
   deletePiVideo,
   fetchPiVideos,
   getThumbnailUrl,
+  getVideoDownloadUrl,
   getVideoUrl,
   type IPiVideoFile,
   type PiVideosResponse,
