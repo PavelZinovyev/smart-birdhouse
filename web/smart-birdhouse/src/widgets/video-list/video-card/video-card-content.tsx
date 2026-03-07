@@ -10,13 +10,11 @@ export interface VideoCardContentProps {
 
 export const VideoCardContent = ({ file, onDelete, isDeleting }: VideoCardContentProps) => (
   <>
-    <VideoCardThumb fileName={file.name} />
-    <VideoCardInfo
+    <VideoCardThumb
       fileName={file.name}
-      size={file.size}
-      mtime={file.mtime}
       onDelete={onDelete ? () => onDelete(file) : undefined}
       isDeleting={isDeleting}
     />
+    <VideoCardInfo fileName={file.name} size={file.size} mtime={file.mtime} />
   </>
 );

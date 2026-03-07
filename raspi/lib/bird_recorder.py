@@ -207,15 +207,26 @@ def video_thumbnail(filename):
     return send_file(path, mimetype="image/jpeg", max_age=86400)
 
 
-@app.route("/videos/<path:filename>")
+@app.route("/videos/<path:filename>", methods=["GET", "DELETE"])
 def video_file(filename):
-    """Отдача файла видео для просмотра/скачивания."""
+    """GET — отдача файла видео. DELETE — удаление видео и превью."""
     name = _safe_filename(unquote(filename).strip())
     if not name:
         return "", 404
     path = os.path.join(VIDEO_DIR, name)
     if not os.path.isfile(path):
         return "", 404
+
+    if request.method == "DELETE":
+        try:
+            os.remove(path)
+            thumb_path = os.path.join(THUMB_DIR, os.path.splitext(name)[0] + ".jpg")
+            if os.path.isfile(thumb_path):
+                os.remove(thumb_path)
+            return jsonify({"ok": True})
+        except OSError as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
     return send_file(path, mimetype="video/mp4", as_attachment=False, download_name=name)
 
 
