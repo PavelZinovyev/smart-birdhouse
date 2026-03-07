@@ -181,8 +181,28 @@
   text-decoration: none;
 }
 
-.downloadButton:active {
+.downloadButton:active:not(:disabled) {
   background: rgba(0, 0, 0, 0.7);
+}
+
+.downloadButtonLoading {
+  cursor: wait;
+  pointer-events: none;
+
+  .downloadButtonSpinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: downloadButtonSpin 0.7s linear infinite;
+  }
+}
+
+@keyframes downloadButtonSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .deleteButton {

@@ -12,7 +12,7 @@ export const MainPage = () => {
 
   const isPiPowerOn = piStatus.data?.pi_power ?? false;
 
-  const showVideoList = isPiPowerOn && !piStatus.isLoading && !piStatus.isError;
+  const showVideoList = isPiPowerOn && !piStatus.isLoading;
 
   return (
     <div className="layout-container stack">

@@ -239,7 +239,8 @@ def video_file(filename):
         except OSError as e:
             return jsonify({"ok": False, "error": str(e)}), 500
 
-    return send_file(path, mimetype="video/mp4", as_attachment=False, download_name=name)
+    as_attachment = request.args.get("download") == "1"
+    return send_file(path, mimetype="video/mp4", as_attachment=as_attachment, download_name=name)
 
 
 # ---------- MAIN ----------

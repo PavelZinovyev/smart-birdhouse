@@ -36,8 +36,8 @@ export const VideoListContent = ({
   deletingName,
 }: IVideoListContentProps) => {
   const isEmpty = isSuccess && files.length === 0;
-  const hasVideos = isSuccess && files.length > 0;
-  const isError = error && !loading;
+  const hasVideos = files.length > 0;
+  const isError = error && !loading && files.length === 0;
 
   return (
     <div>
