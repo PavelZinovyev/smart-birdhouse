@@ -32,7 +32,7 @@ export const MainPage = () => {
         isChargeDone={data?.battery_charge_done}
         isExternalPowerPresent={data?.battery_power_present}
       />
-      {!showVideoList && (
+      {showVideoList && (
         <>
           <StreamViewer />
           <VideoList />

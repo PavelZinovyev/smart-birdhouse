@@ -54,7 +54,6 @@ if (!fs.existsSync(ENV_PATH)) {
 `;
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(OUT_FILE, out, 'utf8');
-  console.log('secrets.h: использованы значения по умолчанию (.env не найден).');
   process.exit(0);
 }
 
@@ -76,4 +75,3 @@ const out = `// Сгенерировано из .env (не коммитить .e
 
 if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 fs.writeFileSync(OUT_FILE, out, 'utf8');
-console.log('secrets.h создан из .env');
