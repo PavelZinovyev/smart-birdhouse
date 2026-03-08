@@ -4,6 +4,7 @@ import { usePiStatusContext } from '@/shared/api';
 import { MetricWidgetTitle } from '@/shared/ui';
 import { StreamViewerOffline } from './stream-viewer-offline';
 import { StreamViewerPlaceholder } from './stream-viewer-placeholder';
+import { StreamViewerStatusDot } from './stream-viewer-status-dot';
 import { StreamViewerStream } from './stream-viewer-stream';
 import styles from './stream-viewer.module.scss';
 
@@ -25,7 +26,9 @@ export const StreamViewer = () => {
 
   return (
     <article className={styles.root} aria-label="прямой эфир с камеры">
-      <MetricWidgetTitle label="Прямой эфир" />
+      <MetricWidgetTitle label="Прямой эфир">
+        <StreamViewerStatusDot active={isStreamActive} />
+      </MetricWidgetTitle>
       <div className={styles.content}>
         <div className={styles.wrapper}>
           {isStreamActive && <StreamViewerStream streamUrl={streamUrl} />}

@@ -12,6 +12,5 @@ export const StreamViewerPlaceholder = ({ onStart }: StreamViewerPlaceholderProp
     aria-label="Начать просмотр прямого эфира"
   >
     <span className={styles.placeholderIcon} aria-hidden />
-    <span className={styles.placeholderText}>Нажмите, чтобы начать просмотр</span>
   </button>
 );
