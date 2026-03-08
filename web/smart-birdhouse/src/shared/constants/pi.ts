@@ -3,3 +3,6 @@
  * Pi в сети SmartBirdhouse. Лучше закрепить статический IP на Pi (см. README), иначе DHCP даёт разный адрес.
  */
 export const PI_VIDEOS_BASE_URL = 'http://192.168.4.3:5000';
+
+/** URL MJPEG live-стрима с камеры (multipart/x-mixed-replace). Отображается в <img src="..."> */
+export const getStreamUrl = () => `${PI_VIDEOS_BASE_URL}/stream`;

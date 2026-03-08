@@ -5,11 +5,13 @@ import styles from './page-header.module.scss';
 
 const PATH_TITLE: Partial<Record<string, string>> = {
   [ROUTES.VIDEOS]: 'Видео',
+  [ROUTES.STREAM]: 'Прямой эфир',
 };
 
 export const PageHeader = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
   const title = PATH_TITLE[pathname];
   const showBack = pathname !== ROUTES.MAIN;
 

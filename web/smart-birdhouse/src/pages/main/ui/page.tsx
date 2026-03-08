@@ -1,14 +1,14 @@
 import { useSensors } from '@/shared/api';
 import { EnvironmentChart } from '@/widgets/environment-chart/environment-chart';
 import { BatteryChart, PiPowerToggle, VideoList } from '@/widgets';
-import { usePiStatus } from '@/shared/api';
+import { usePiStatusContext } from '@/shared/api';
+import { StreamViewer } from '@/widgets';
 
 const POLL_INTERVAL_MS = 5000;
-const PI_STATUS_REFETCH_MS = 3000;
 
 export const MainPage = () => {
   const { data, loading, error } = useSensors(POLL_INTERVAL_MS);
-  const piStatus = usePiStatus(PI_STATUS_REFETCH_MS);
+  const piStatus = usePiStatusContext();
 
   const isPiPowerOn = piStatus.data?.pi_power ?? false;
 
@@ -32,7 +32,12 @@ export const MainPage = () => {
         isChargeDone={data?.battery_charge_done}
         isExternalPowerPresent={data?.battery_power_present}
       />
-      {showVideoList && <VideoList />}
+      {showVideoList && (
+        <>
+          <StreamViewer />
+          <VideoList />
+        </>
+      )}
     </div>
   );
 };
