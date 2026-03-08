@@ -13,8 +13,14 @@ import subprocess
 import time
 import os
 import signal
-from flask import Flask, jsonify, request, send_file, Response
+import threading
+from flask import Flask, jsonify, request, send_file, Response, stream_with_context
 from urllib.parse import unquote
+
+# MJPEG: маркеры начала/конца JPEG в потоке
+JPEG_SOI = bytes([0xFF, 0xD8])
+JPEG_EOI = bytes([0xFF, 0xD9])
+STREAM_BOUNDARY = b"frame"
 
 # ---------- PINS ----------
 PI_SIGNAL_PIN = 17
@@ -40,6 +46,8 @@ os.makedirs(THUMB_DIR, exist_ok=True)
 process = None
 recording = False
 manual_mode = False
+stream_process = None
+stream_lock = threading.Lock()
 
 # ---------- MODE ----------
 if GPIO.input(PI_MODE_PIN) == GPIO.HIGH:
@@ -151,6 +159,82 @@ def _ensure_thumbnail(video_name):
         return None
 
 
+# ---------- MJPEG STREAM ----------
+# Параметры стрима (меньше разрешение/FPS, чтобы не грузить Pi при просмотре)
+STREAM_WIDTH = int(os.getenv("STREAM_WIDTH", "1280"))
+STREAM_HEIGHT = int(os.getenv("STREAM_HEIGHT", "720"))
+STREAM_FPS = int(os.getenv("STREAM_FPS", "15"))
+
+
+def _read_jpeg_frames(pipe, chunk_size=65536):
+    """Читает из pipe поток MJPEG (последовательность JPEG) и отдаёт по одному кадру (bytes)."""
+    buffer = b""
+    while True:
+        data = pipe.read(chunk_size)
+        if not data:
+            break
+        buffer += data
+        while True:
+            start = buffer.find(JPEG_SOI)
+            if start == -1:
+                # оставить хвост на случай разрыва кадра
+                buffer = buffer[-len(JPEG_SOI) - 1 :] if len(buffer) > len(JPEG_SOI) + 1 else buffer
+                break
+            end = buffer.find(JPEG_EOI, start)
+            if end == -1:
+                buffer = buffer[start:]
+                break
+            end += len(JPEG_EOI)
+            frame = buffer[start:end]
+            buffer = buffer[end:]
+            yield frame
+
+
+def _stream_generator():
+    """Запускает rpicam-vid (MJPEG в stdout), режет на кадры и отдаёт multipart/x-mixed-replace."""
+    global stream_process
+    with stream_lock:
+        if stream_process is not None:
+            return  # второй клиент не подключаем — один процесс на камеру
+        stream_process = subprocess.Popen(
+            [
+                "rpicam-vid",
+                "-t", "0",
+                "-n",
+                "--width", str(STREAM_WIDTH),
+                "--height", str(STREAM_HEIGHT),
+                "--framerate", str(STREAM_FPS),
+                "--codec", "mjpeg",
+                "-o", "-",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        )
+    try:
+        for frame in _read_jpeg_frames(stream_process.stdout):
+            part = (
+                b"--" + STREAM_BOUNDARY + b"\r\n"
+                b"Content-Type: image/jpeg\r\n"
+                b"Content-Length: " + str(len(frame)).encode() + b"\r\n\r\n"
+                + frame + b"\r\n"
+            )
+            yield part
+    except (BrokenPipeError, GeneratorExit):
+        pass
+    finally:
+        with stream_lock:
+            if stream_process is not None:
+                try:
+                    stream_process.terminate()
+                    stream_process.wait(timeout=3)
+                except (ProcessLookupError, subprocess.TimeoutExpired):
+                    try:
+                        stream_process.kill()
+                    except ProcessLookupError:
+                        pass
+                stream_process = None
+
+
 # ---------- API ----------
 app = Flask(__name__)
 
@@ -201,6 +285,32 @@ def shutdown():
     GPIO.output(PI_READY_PIN, GPIO.LOW)
     request_os_shutdown()
     return jsonify({"ok": True})
+
+
+@app.route("/stream")
+def stream():
+    """
+    MJPEG live stream с камеры.
+    Браузер отображает через <img src="/stream"> (multipart/x-mixed-replace).
+    Во время записи в файл стрим недоступен (одна камера). Одновременно только один зритель.
+    """
+    if recording:
+        return Response(
+            "Stream unavailable while recording",
+            status=503,
+            mimetype="text/plain",
+        )
+    with stream_lock:
+        if stream_process is not None:
+            return Response(
+                "Stream already in use",
+                status=503,
+                mimetype="text/plain",
+            )
+    return Response(
+        stream_with_context(_stream_generator()),
+        mimetype="multipart/x-mixed-replace; boundary=" + STREAM_BOUNDARY.decode(),
+    )
 
 
 @app.route("/videos")
@@ -270,8 +380,6 @@ def gpio_loop():
 
         time.sleep(0.2)
 
-
-import threading
 
 threading.Thread(target=gpio_loop, daemon=True).start()
 
