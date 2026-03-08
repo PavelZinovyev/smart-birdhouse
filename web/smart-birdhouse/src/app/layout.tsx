@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { useScrollTop } from '@/shared/hooks';
 import { PiStatusProvider } from '@/shared/api/pi-status-provider';
-import { Header, PageHeader, VideosApiLog } from '@/widgets';
+import { Header, PageHeader } from '@/widgets';
 
 export const Layout = () => {
   useScrollTop();
@@ -13,7 +13,6 @@ export const Layout = () => {
         <div className="layout-main-content">
           <PageHeader />
           <Outlet />
-          <VideosApiLog />
         </div>
       </main>
     </PiStatusProvider>
