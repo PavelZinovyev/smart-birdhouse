@@ -13,11 +13,20 @@ export interface PiStatus {
   manual: boolean;
 }
 
+export interface PiCameraStatus {
+  recording: boolean;
+  manual_mode: boolean;
+  files: string[];
+  recording_error?: boolean;
+}
+
 const PI_STATUS_URL = '/api/pi/status';
 const PI_POWER_URL = '/api/pi/power';
 const PI_SHUTDOWN_URL = `${PI_VIDEOS_BASE_URL}/shutdown`;
+const PI_CAMERA_STATUS_URL = `${PI_VIDEOS_BASE_URL}/status`;
+const PI_RECORD_STOP_URL = `${PI_VIDEOS_BASE_URL}/record/stop`;
+const PI_RECORD_START_URL = `${PI_VIDEOS_BASE_URL}/record/start`;
 
-/** Таймаут для POST /api/pi/power: ESP32 обрабатывает запросы по одному, пока отдает статику - ответ может задерживаться */
 const PI_POWER_TIMEOUT_MS = 12_000;
 
 export async function fetchPiStatus(): Promise<PiStatus | null> {
@@ -47,13 +56,11 @@ export async function setPiPower(on: boolean, manual: boolean): Promise<boolean>
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), PI_POWER_TIMEOUT_MS);
   try {
-    // при выключении Pi сначала мягко просим её завершить работу через Flask (/shutdown),
-    // затем через ESP32 отключаем питание (с задержкой на самой ESP32).
     if (!on) {
       try {
         await fetch(PI_SHUTDOWN_URL, { method: 'POST' });
       } catch {
-        // Если нет связи с Pi, всё равно попробуем выключить питание на ESP32.
+        console.error('error while turn off pi');
       }
     }
 
@@ -68,5 +75,48 @@ export async function setPiPower(on: boolean, manual: boolean): Promise<boolean>
     return false;
   } finally {
     clearTimeout(timeoutId);
+  }
+}
+
+export async function fetchPiCameraStatus(): Promise<PiCameraStatus | null> {
+  try {
+    const res = await fetch(PI_CAMERA_STATUS_URL);
+    if (!res.ok) return null;
+    const raw = (await res.json()) as unknown;
+    if (typeof raw === 'object' && raw !== null && 'recording' in raw) {
+      const r = raw as {
+        recording?: boolean;
+        manual_mode?: boolean;
+        files?: string[];
+        recording_error?: boolean;
+      };
+      return {
+        recording: Boolean(r.recording),
+        manual_mode: Boolean(r.manual_mode),
+        files: Array.isArray(r.files) ? r.files : [],
+        recording_error: Boolean(r.recording_error),
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function stopPiRecording(): Promise<boolean> {
+  try {
+    const res = await fetch(PI_RECORD_STOP_URL, { method: 'POST' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function startPiRecording(): Promise<boolean> {
+  try {
+    const res = await fetch(PI_RECORD_START_URL, { method: 'POST' });
+    return res.ok;
+  } catch {
+    return false;
   }
 }

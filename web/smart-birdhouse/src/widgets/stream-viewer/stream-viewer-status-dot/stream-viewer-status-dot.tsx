@@ -1,10 +1,16 @@
 import classNames from 'classnames';
 import styles from './stream-viewer-status-dot.module.scss';
 
+export type StreamStatus = 'idle' | 'loading' | 'playing' | 'error';
+
 interface StreamViewerStatusDotProps {
-  active: boolean;
+  status: StreamStatus;
 }
 
-export const StreamViewerStatusDot = ({ active }: StreamViewerStatusDotProps) => (
-  <span className={classNames(styles.dot, active && styles.dotActive)} aria-hidden />
+export const StreamViewerStatusDot = ({ status }: StreamViewerStatusDotProps) => (
+  <span
+    className={classNames(styles.dot, styles[`dot_${status}`])}
+    aria-hidden
+    aria-label={status}
+  />
 );

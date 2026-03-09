@@ -21,7 +21,6 @@ export function isMockEnabled(key: MockResource): boolean {
   return v === 'mock' || v === 'loading' || v === 'error' || v === 'empty';
 }
 
-/** Возвращает promise, который никогда не резолвится (для имитации loading) */
 export function createNeverResolvingPromise<T>(): Promise<T> {
   return new Promise(() => {});
 }

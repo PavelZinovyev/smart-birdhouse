@@ -1,0 +1,56 @@
+.stopOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.stopOverlay:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.stopOverlay:focus-visible {
+  outline: 2px solid var(--color-border);
+  outline-offset: -2px;
+}
+
+.stopIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  opacity: 0.7;
+  transition: opacity 0.35s ease, background 0.35s ease;
+}
+
+.stopOverlay[data-visible='false'] .stopIcon {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stopOverlay:hover .stopIcon {
+  opacity: 0.95;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.stopOverlay[data-visible='false']:hover .stopIcon {
+  opacity: 0.95;
+}
+
+.stopIcon::before,
+.stopIcon::after {
+  content: '';
+  width: 5px;
+  height: 20px;
+  background: var(--color-text, #fff);
+  border-radius: 2px;
+}

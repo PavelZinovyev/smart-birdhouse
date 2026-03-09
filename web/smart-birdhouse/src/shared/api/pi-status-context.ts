@@ -1,8 +1,3 @@
-/**
- * Контекст и хук статуса Raspberry Pi.
- * Провайдер (компонент) — в pi-status-provider.tsx.
- */
-
 import { createContext, useContext } from 'react';
 import type { usePiStatus } from './use-pi-power';
 

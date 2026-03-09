@@ -1,0 +1,33 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: var(--radius-md, 6px);
+  white-space: nowrap;
+}
+
+.tag_gray {
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-text-muted) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-text-muted) 30%, transparent);
+}
+
+.tag_green {
+  color: var(--color-accent, #22c55e);
+  background: color-mix(in srgb, var(--color-accent, #22c55e) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent, #22c55e) 35%, transparent);
+}
+
+.tag_yellow {
+  color: #eab308;
+  background: color-mix(in srgb, #eab308 14%, transparent);
+  border: 1px solid color-mix(in srgb, #eab308 35%, transparent);
+}
+
+.tag_red {
+  color: #ef4444;
+  background: color-mix(in srgb, #ef4444 14%, transparent);
+  border: 1px solid color-mix(in srgb, #ef4444 35%, transparent);
+}

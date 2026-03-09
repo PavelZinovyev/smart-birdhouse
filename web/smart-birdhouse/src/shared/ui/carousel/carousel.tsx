@@ -7,7 +7,6 @@ export interface CarouselProps {
   orientation?: 'horizontal' | 'grid';
   maxHeight?: string;
   gap?: string | number;
-  /** Компенсация паддингов родителя — отрицательные отступы + внутренний padding (напр. var(--space-5)) */
   extendBy?: string;
   className?: string;
   ariaLabel?: string;

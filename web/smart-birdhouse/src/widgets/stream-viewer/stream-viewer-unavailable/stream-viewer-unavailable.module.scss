@@ -1,0 +1,40 @@
+.unavailableBlock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.unavailableIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--color-text-muted, #888);
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.unavailableIcon::before,
+.unavailableIcon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 2px;
+  background: var(--color-text-muted, #888);
+  border-radius: 1px;
+}
+
+.unavailableIcon::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.unavailableIcon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}

@@ -1,0 +1,29 @@
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.root.inactive {
+  opacity: 0.35;
+  background: color-mix(in srgb, var(--color-text-muted) 14%, var(--color-surface)) !important;
+  border-color: color-mix(in srgb, var(--color-text-muted) 50%, var(--color-border)) !important;
+}
+
+.root.inactive .content {
+  color: var(--color-text-muted);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}

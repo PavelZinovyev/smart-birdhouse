@@ -1,0 +1,65 @@
+.stateRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.recordControl {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.recordControl:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.recordControl:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.recordControl:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.recordControl_stop {
+  background: color-mix(in srgb, #ef4444 18%, transparent);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.recordControl_stop .recordControlIcon {
+  width: 12px;
+  height: 12px;
+  background: currentColor;
+  border-radius: 2px;
+}
+
+.recordControl_play {
+  background: color-mix(in srgb, var(--color-accent, #22c55e) 18%, transparent);
+  border-color: var(--color-accent, #22c55e);
+  color: var(--color-accent, #22c55e);
+}
+
+.recordControl_play .recordControlIcon {
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  border-style: solid;
+  border-width: 8px 0 8px 14px;
+  border-color: transparent transparent transparent currentColor;
+  background: none;
+}

@@ -1,6 +1,6 @@
 import { useSensors } from '@/shared/api';
 import { EnvironmentChart } from '@/widgets/environment-chart/environment-chart';
-import { BatteryChart, PiPowerToggle, VideoList } from '@/widgets';
+import { BatteryChart, PiSection, VideoList } from '@/widgets';
 import { usePiStatusContext } from '@/shared/api';
 import { StreamViewer } from '@/widgets';
 
@@ -17,7 +17,7 @@ export const MainPage = () => {
   return (
     <div className="layout-container stack">
       {error && <p role="alert">Ошибка: {error}</p>}
-      <PiPowerToggle {...piStatus} />
+      <PiSection />
       <EnvironmentChart
         temperature={data?.temperature ?? 0}
         humidity={data?.humidity ?? 0}

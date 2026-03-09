@@ -45,6 +45,7 @@ os.makedirs(THUMB_DIR, exist_ok=True)
 
 process = None
 recording = False
+recording_error = False  # true, если последняя запись завершилась с ошибкой(процесс упал)
 manual_mode = False
 stream_process = None
 stream_lock = threading.Lock()
@@ -66,11 +67,12 @@ def request_os_shutdown():
 
 # ---------- RECORD ----------
 def start_recording():
-    global process, recording
+    global process, recording, recording_error
 
     if recording:
         return
 
+    recording_error = False  # сброс при новом старте записи
     filename = os.path.join(VIDEO_DIR, f"video_{int(time.time())}.mp4")
 
     process = subprocess.Popen([
@@ -95,13 +97,16 @@ def start_recording():
 
 
 def stop_recording():
-    global process, recording
+    global process, recording, recording_error
 
     if not process:
         return
 
     process.send_signal(signal.SIGINT)
     process.wait()
+    if process.returncode is not None and process.returncode != 0:
+        recording_error = True
+        print(f"⚠️ Recording exited with code {process.returncode}")
 
     process = None
     recording = False
@@ -257,11 +262,23 @@ def _cors_preflight():
         return r
 
 
+def _effective_recording_state():
+    """Если процесс записи уже завершился (упал), отражаем это в состоянии."""
+    global recording, recording_error
+    if recording and process is not None and process.poll() is not None:
+        if process.returncode != 0:
+            recording_error = True
+        recording = False
+    return recording, recording_error
+
+
 @app.route("/status")
 def status():
+    rec, err = _effective_recording_state()
     return jsonify({
         "manual_mode": manual_mode,
-        "recording": recording,
+        "recording": rec,
+        "recording_error": err,
         "files": list_files()
     })
 

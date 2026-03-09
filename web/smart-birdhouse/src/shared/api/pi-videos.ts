@@ -74,9 +74,6 @@ export function getVideoDownloadUrl(name: string): string {
   return `${getVideoUrl(name)}?download=1`;
 }
 
-/**
- * Удаляет видео с распи
- */
 export async function deletePiVideo(name: string): Promise<{ ok: boolean }> {
   const mock = getMockMode();
   if (mock !== null) {

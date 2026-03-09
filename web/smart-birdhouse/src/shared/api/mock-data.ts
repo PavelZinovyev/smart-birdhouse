@@ -1,7 +1,3 @@
-/**
- * Мок-данные для API. Используется при ?videos=mock, ?pi=mock, ?sensors=mock
- */
-
 import type { PiStatus } from './pi';
 import type { SensorsData } from './sensors';
 

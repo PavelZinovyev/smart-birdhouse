@@ -6,7 +6,6 @@ export interface BatteryChartProps {
   value: number;
   voltage?: number;
   loading?: boolean;
-  /** false = датчик BQ25895 не обнаружен или не подключен */
   batteryAvailable?: boolean;
   isCharging?: boolean;
   isChargeDone?: boolean;

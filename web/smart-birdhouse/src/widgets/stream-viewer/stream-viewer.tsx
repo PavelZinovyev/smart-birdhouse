@@ -1,39 +1,65 @@
-import { useState } from 'react';
-import { getStreamUrl } from '@/shared/constants/pi';
-import { usePiStatusContext } from '@/shared/api';
-import { MetricWidgetTitle } from '@/shared/ui';
+import { useStreamViewer } from './hooks/use-stream-viewer';
+import { MetricWidgetTitle, StatusTag } from '@/shared/ui';
 import { StreamViewerOffline } from './stream-viewer-offline';
 import { StreamViewerPlaceholder } from './stream-viewer-placeholder';
 import { StreamViewerStatusDot } from './stream-viewer-status-dot';
-import { StreamViewerStream } from './stream-viewer-stream';
+import { StreamViewerActive } from './stream-viewer-active';
+import { StreamViewerUnavailable } from './stream-viewer-unavailable';
+import { StreamViewerErrorOverlay } from './stream-viewer-error-overlay';
 import styles from './stream-viewer.module.scss';
 
 export const StreamViewer = () => {
-  const [isStreamActive, setStreamActive] = useState(false);
+  const {
+    showOffline,
+    streamUrl,
+    isRecording,
+    dotStatus,
+    statusText,
+    isStreamActive,
+    isStreamLoaded,
+    streamError,
+    stopOverlayVisible,
+    handleClickStart,
+    handleLoaded,
+    handleStreamError,
+    handleStop,
+  } = useStreamViewer();
 
-  const piStatus = usePiStatusContext();
-  const isPiOn = piStatus.data?.pi_power ?? false;
+  const showPlaceholder = !isStreamActive && !isRecording;
+  const showUnavailable = !isStreamActive && isRecording;
+  const showStreamContent = isStreamActive && !streamError;
+  const showStreamError = isStreamActive && streamError;
 
-  if (!isPiOn && !piStatus.isLoading) {
+  if (showOffline) {
     return <StreamViewerOffline />;
   }
-
-  const streamUrl = getStreamUrl();
-
-  const handleClickStart = () => {
-    setStreamActive(true);
-  };
 
   return (
     <article className={styles.root} aria-label="прямой эфир с камеры">
       <MetricWidgetTitle label="Прямой эфир">
-        <StreamViewerStatusDot active={isStreamActive} />
+        <StreamViewerStatusDot status={dotStatus} />
       </MetricWidgetTitle>
       <div className={styles.content}>
         <div className={styles.wrapper}>
-          {isStreamActive && <StreamViewerStream streamUrl={streamUrl} />}
-          {!isStreamActive && <StreamViewerPlaceholder onStart={handleClickStart} />}
+          {showPlaceholder && <StreamViewerPlaceholder onStart={handleClickStart} />}
+          {showUnavailable && <StreamViewerUnavailable />}
+          {showStreamContent && (
+            <StreamViewerActive
+              streamUrl={streamUrl}
+              isStreamLoaded={isStreamLoaded}
+              stopOverlayVisible={stopOverlayVisible}
+              onLoaded={handleLoaded}
+              onError={handleStreamError}
+              onStop={handleStop}
+            />
+          )}
+          {showStreamError && <StreamViewerErrorOverlay onClose={handleStop} />}
         </div>
+        {statusText && (
+          <div className={styles.statusLine} aria-live="polite">
+            <StatusTag variant="gray">{statusText}</StatusTag>
+          </div>
+        )}
       </div>
     </article>
   );

@@ -7,6 +7,25 @@
   transition: background-color 0.2s;
 }
 
-.dotActive {
+.dot_idle {
+  background: var(--color-text-muted, #888);
+}
+
+.dot_loading {
+  background: var(--color-text-muted, #888);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.dot_playing {
   background: #ef4444;
+}
+
+.dot_error {
+  background: #eab308;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
 }

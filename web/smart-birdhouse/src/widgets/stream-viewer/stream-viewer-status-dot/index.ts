@@ -1,1 +1,1 @@
-export { StreamViewerStatusDot } from './stream-viewer-status-dot';
+export { StreamViewerStatusDot, type StreamStatus } from './stream-viewer-status-dot';

@@ -17,7 +17,7 @@ export const VideoListSkeleton = ({ layout, gridVariant = 'small' }: VideoListSk
     return (
       <Carousel
         orientation="horizontal"
-        extendBy="var(--space-5)"
+        extendBy="var(--space-4)"
         className={styles.carousel}
         ariaLabel="Загрузка видео"
       >
