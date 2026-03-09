@@ -10,7 +10,7 @@ export type CameraActivityStateValue =
 
 export const CAMERA_ACTIVITY_LABELS: Record<CameraActivityStateValue, string> = {
   [CameraActivityState.UNAVAILABLE]: 'Недоступна',
-  [CameraActivityState.RECORDING]: 'Идёт запись',
+  [CameraActivityState.RECORDING]: 'Идет запись',
   [CameraActivityState.IDLE]: 'Готова',
 };
 

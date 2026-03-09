@@ -36,7 +36,7 @@ AUDIO_DEVICE = os.getenv("AUDIO_DEVICE", "plughw:0,0")
 
 GPIO.setmode(GPIO.BCM)
 
-GPIO.setup(PI_SIGNAL_PIN, GPIO.IN)
+GPIO.setup(PI_SIGNAL_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(PI_READY_PIN, GPIO.OUT)
 GPIO.setup(PI_MODE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 

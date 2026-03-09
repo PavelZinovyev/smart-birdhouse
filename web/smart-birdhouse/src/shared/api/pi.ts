@@ -106,17 +106,25 @@ export async function fetchPiCameraStatus(): Promise<PiCameraStatus | null> {
 export async function stopPiRecording(): Promise<boolean> {
   try {
     const res = await fetch(PI_RECORD_STOP_URL, { method: 'POST' });
-    return res.ok;
-  } catch {
-    return false;
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(body || `stop recording failed: ${res.status}`);
+    }
+    return true;
+  } catch (err) {
+    throw err instanceof Error ? err : new Error(String(err));
   }
 }
 
 export async function startPiRecording(): Promise<boolean> {
   try {
     const res = await fetch(PI_RECORD_START_URL, { method: 'POST' });
-    return res.ok;
-  } catch {
-    return false;
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(body || `start recording failed: ${res.status}`);
+    }
+    return true;
+  } catch (err) {
+    throw err instanceof Error ? err : new Error(String(err));
   }
 }

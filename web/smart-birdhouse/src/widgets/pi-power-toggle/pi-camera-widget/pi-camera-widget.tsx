@@ -24,8 +24,16 @@ export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps)
   const { data: cameraStatus } = usePiCameraStatus(on);
   const recording = cameraStatus?.recording ?? false;
   const manualMode = cameraStatus?.manual_mode ?? false;
-  const { mutate: stopRecording, isPending: isStoppingRecording } = useStopPiRecording();
-  const { mutate: startRecording, isPending: isStartingRecording } = useStartPiRecording();
+  const {
+    mutate: stopRecording,
+    isPending: isStoppingRecording,
+    error: stopError,
+  } = useStopPiRecording();
+  const {
+    mutate: startRecording,
+    isPending: isStartingRecording,
+    error: startError,
+  } = useStartPiRecording();
 
   const activityState = getCameraActivityState(on, recording, manualMode);
   const activityLabel = CAMERA_ACTIVITY_LABELS[activityState];
@@ -70,6 +78,11 @@ export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps)
       <div className={styles.content}>
         <StatusTag variant={tagVariant}>{activityLabel}</StatusTag>
       </div>
+      {(startError || stopError) && (
+        <div className={styles.error}>
+          {(startError || stopError)?.message}
+        </div>
+      )}
     </article>
   );
 };

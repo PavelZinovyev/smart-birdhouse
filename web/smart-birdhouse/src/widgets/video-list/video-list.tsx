@@ -22,6 +22,10 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideo
   const { deleteVideo, isDeleting, deletingName } = useDeletePiVideo();
   const [selectedVideo, setSelectedVideo] = useState<IPiVideoFile | null>(null);
   const isCarouselWithVideos = layout === 'carousel';
+  const hasVideos = files.length > 0;
+  const isErrorState = !!error && !loading && files.length === 0;
+  const isEmpty = isSuccess && files.length === 0;
+  const shouldShowCarouselWidget = isCarouselWithVideos && (loading || hasVideos);
 
   const handleDelete = (file: IPiVideoFile) => deleteVideo(file.name);
 
@@ -41,9 +45,15 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideo
     />
   );
 
-  const title = <MetricWidgetTitle label={LABEL} />;
+  const videoCount = files.length;
+  const titleLabel = isCarouselWithVideos ? `${LABEL} (${videoCount})` : LABEL;
+  const title = <MetricWidgetTitle label={titleLabel} />;
 
   if (isCarouselWithVideos) {
+    if (!shouldShowCarouselWidget && (isEmpty || isErrorState)) {
+      return null;
+    }
+
     return (
       <>
         <Link to={ROUTES.VIDEOS} className={styles.widgetLink}>

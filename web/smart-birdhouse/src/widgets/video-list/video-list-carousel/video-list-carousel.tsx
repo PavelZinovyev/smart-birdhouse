@@ -25,7 +25,7 @@ export const VideoListCarousel = ({
     <div className={styles.root}>
       <Carousel
         orientation="horizontal"
-        extendBy="var(--space-5)"
+        extendBy="var(--space-4)"
         className={styles.carousel}
         ariaLabel="videos"
       >

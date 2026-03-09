@@ -33,13 +33,7 @@ export const PiPowerToggle = ({ data: status, isLoading, isError }: PiPowerToggl
   const { mutate: stopRecording, isPending: isStoppingRecording } = useStopPiRecording();
   const { mutate: startRecording, isPending: isStartingRecording } = useStartPiRecording();
 
-  const activityState = getPiActivityState(
-    on,
-    shutdownRequested,
-    recording,
-    manualMode,
-    recordingError,
-  );
+  const activityState = getPiActivityState(on, shutdownRequested, manualMode, recordingError);
   const activityLabel = PI_ACTIVITY_LABELS[activityState];
   const tagVariant = PI_ACTIVITY_TAG_VARIANT[activityState];
 
