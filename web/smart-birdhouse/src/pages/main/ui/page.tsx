@@ -1,6 +1,6 @@
 import { useSensors } from '@/shared/api';
 import { EnvironmentChart } from '@/widgets/environment-chart/environment-chart';
-import { BatteryChart, PiSection, VideoList } from '@/widgets';
+import { PiSection, VideoList } from '@/widgets';
 import { usePiStatusContext } from '@/shared/api';
 import { StreamViewer } from '@/widgets';
 
@@ -23,16 +23,7 @@ export const MainPage = () => {
         humidity={data?.humidity ?? 0}
         loading={loading}
       />
-      <BatteryChart
-        value={data?.battery_percent ?? 0}
-        voltage={data?.battery_voltage ?? data?.battery}
-        loading={loading}
-        batteryAvailable={data?.battery_available ?? true}
-        isCharging={data?.battery_charging}
-        isChargeDone={data?.battery_charge_done}
-        isExternalPowerPresent={data?.battery_power_present}
-      />
-      {!showVideoList && (
+      {showVideoList && (
         <>
           <StreamViewer />
           <VideoList />
