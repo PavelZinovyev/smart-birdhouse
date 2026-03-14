@@ -6,9 +6,12 @@ import { StreamViewerStatusDot } from './stream-viewer-status-dot';
 import { StreamViewerActive } from './stream-viewer-active';
 import { StreamViewerUnavailable } from './stream-viewer-unavailable';
 import { StreamViewerErrorOverlay } from './stream-viewer-error-overlay';
-import styles from './stream-viewer.module.scss';
+import styles from './stream-viewer-section.module.scss';
+import { Container } from '@/shared/ui/container/container';
 
-export const StreamViewer = () => {
+const STREAM_VIEWER_LABEL = 'Прямой эфир';
+
+export const StreamViewerSection = () => {
   const {
     showOffline,
     streamUrl,
@@ -35,8 +38,8 @@ export const StreamViewer = () => {
   }
 
   return (
-    <article className={styles.root} aria-label="прямой эфир с камеры">
-      <MetricWidgetTitle label="Прямой эфир">
+    <Container aria-label={STREAM_VIEWER_LABEL}>
+      <MetricWidgetTitle label={STREAM_VIEWER_LABEL}>
         <StreamViewerStatusDot status={dotStatus} />
       </MetricWidgetTitle>
       <div className={styles.content}>
@@ -61,6 +64,6 @@ export const StreamViewer = () => {
           </div>
         )}
       </div>
-    </article>
+    </Container>
   );
 };

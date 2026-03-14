@@ -1,5 +1,5 @@
 import { MetricWidgetTitle } from '@/shared/ui';
-import styles from '../stream-viewer.module.scss';
+import styles from '../stream-viewer-section.module.scss';
 
 export const StreamViewerOffline = () => (
   <article className={styles.root} aria-label="прямой эфир с камеры">

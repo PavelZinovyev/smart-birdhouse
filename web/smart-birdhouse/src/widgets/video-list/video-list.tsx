@@ -8,6 +8,8 @@ import { MetricWidgetTitle } from '@/shared/ui';
 import styles from './video-list.module.scss';
 import { VideoListContent } from './video-list-content';
 import { VideoModal } from './video-modal';
+import { PageLayout } from '@/pages/layout';
+import { Container } from '@/shared/ui/container/container';
 
 interface IVideoListProps {
   layout?: VideoListLayout;
@@ -15,7 +17,7 @@ interface IVideoListProps {
 }
 
 const REFRESH_INTERVAL_MS = 10_000;
-const LABEL = 'Видео с камеры';
+const CAMERA_VIDEOS_LABEL = 'Видео с камеры';
 
 export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideoListProps) => {
   const { files, loading, error, isSuccess } = usePiVideos(REFRESH_INTERVAL_MS);
@@ -46,7 +48,9 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideo
   );
 
   const videoCount = files.length;
-  const titleLabel = isCarouselWithVideos ? `${LABEL} (${videoCount})` : LABEL;
+  const titleLabel = isCarouselWithVideos
+    ? `${CAMERA_VIDEOS_LABEL} (${videoCount})`
+    : CAMERA_VIDEOS_LABEL;
   const title = <MetricWidgetTitle label={titleLabel} />;
 
   if (isCarouselWithVideos) {
@@ -56,9 +60,11 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideo
 
     return (
       <>
-        <Link to={ROUTES.VIDEOS} className={styles.widgetLink}>
-          {title}
-          <article aria-label={LABEL}>{content}</article>
+        <Link to={ROUTES.VIDEOS} className={styles.link}>
+          <Container aria-label={CAMERA_VIDEOS_LABEL}>
+            {title}
+            <article aria-label={CAMERA_VIDEOS_LABEL}>{content}</article>
+          </Container>
         </Link>
         <VideoModal file={selectedVideo} onClose={() => setSelectedVideo(null)} />
       </>
@@ -66,9 +72,9 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideo
   }
 
   return (
-    <>
-      <article aria-label={LABEL}>{content}</article>
+    <PageLayout>
+      <article aria-label={CAMERA_VIDEOS_LABEL}>{content}</article>
       <VideoModal file={selectedVideo} onClose={() => setSelectedVideo(null)} />
-    </>
+    </PageLayout>
   );
 };

@@ -40,11 +40,20 @@
 }
 
 .switch.disabled {
-  opacity: 0.7;
+  opacity: 0.55;
   cursor: not-allowed;
-  background: var(--color-text-muted, #888) !important;
+  background: var(--color-border) !important;
+}
+
+.switch.disabled .thumb {
+  opacity: 0.8;
+  background: var(--color-text-muted);
 }
 
 .switch.disabled[data-checked='true'] {
-  background: color-mix(in srgb, var(--color-text-muted) 60%, var(--color-surface)) !important;
+  background: color-mix(in srgb, var(--color-text-muted) 50%, var(--color-surface)) !important;
+}
+
+.switch.disabled[data-checked='true'] .thumb {
+  background: var(--color-text-muted);
 }

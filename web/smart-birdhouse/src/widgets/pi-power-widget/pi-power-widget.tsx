@@ -7,20 +7,29 @@ import {
 import styles from './pi-power-widget.module.scss';
 import { WidgetContent } from '@/shared/ui/widget-content/widget-content';
 
-export type PiPowerWidgetProps = PiPowerWidgetPropsBase & { className?: string };
+export type PiPowerWidgetProps = PiPowerWidgetPropsBase & {
+  className?: string;
+  forceDisabled?: boolean;
+};
 
-export const PiPowerWidget = ({ data: status, isLoading, isError }: PiPowerWidgetProps) => {
+export const PiPowerWidget = ({
+  data: status,
+  isLoading,
+  isError,
+  forceDisabled = false,
+}: PiPowerWidgetProps) => {
   const { on, activityLabel, tagVariant, disabled, handleChange, handleKeyDown } = usePiPowerWidget(
     { data: status, isLoading, isError },
   );
+  const isDisabled = disabled || forceDisabled;
 
   return (
-    <WidgetContent ariaLabel="Питание" inactive={disabled}>
+    <WidgetContent ariaLabel="Питание" inactive={isDisabled}>
       <div className={styles.header}>
         <WidgetLabel label="Питание" />
         <ToggleSwitch
           checked={on}
-          disabled={disabled}
+          disabled={isDisabled}
           aria-label="Питание"
           onClick={handleChange}
           onKeyDown={handleKeyDown}

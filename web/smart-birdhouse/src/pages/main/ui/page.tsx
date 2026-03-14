@@ -1,8 +1,9 @@
-import { useSensors } from '@/shared/api';
-import { EnvironmentChart } from '@/widgets/environment-chart/environment-chart';
-import { VideoList, StreamViewer } from '@/widgets';
-import { usePiStatusContext } from '@/shared/api';
+import { useSensors, usePiStatusContext } from '@/shared/api';
+import { EnvironmentSection } from '@/widgets/environment-seciton/environment-section';
+import { VideoList, StreamViewerSection } from '@/widgets';
 import { PiSection } from '@/widgets/pi-section';
+import { PageLayout } from '../../layout';
+
 const POLL_INTERVAL_MS = 5000;
 
 export const MainPage = () => {
@@ -14,19 +15,19 @@ export const MainPage = () => {
   const showVideoList = isPiPowerOn && !piStatus.isLoading;
 
   return (
-    <div className="layout-container stack">
+    <PageLayout>
       <PiSection />
-      <EnvironmentChart
+      <EnvironmentSection
         temperature={data?.temperature ?? 0}
         humidity={data?.humidity ?? 0}
         loading={loading}
       />
       {showVideoList && (
         <>
-          <StreamViewer />
+          <StreamViewerSection />
           <VideoList />
         </>
       )}
-    </div>
+    </PageLayout>
   );
 };

@@ -17,9 +17,9 @@ import { WidgetContent } from '@/shared/ui/widget-content/widget-content';
 export type PiCameraWidgetProps = Pick<
   ReturnType<typeof usePiStatus>,
   'data' | 'isLoading' | 'isError'
-> & { className?: string };
+> & { className?: string; forceDisabled?: boolean };
 
-export const PiCameraWidget = ({ data: status }: PiCameraWidgetProps) => {
+export const PiCameraWidget = ({ data: status, forceDisabled = false }: PiCameraWidgetProps) => {
   const on = status?.pi_power ?? false;
   const { data: cameraStatus } = usePiCameraStatus(on);
   const recording = cameraStatus?.recording ?? false;
@@ -42,7 +42,7 @@ export const PiCameraWidget = ({ data: status }: PiCameraWidgetProps) => {
 
   const busy = isStoppingRecording || isStartingRecording;
   const standbyLike = !manualMode && !recording;
-  const disabled = !on || busy || standbyLike || recording || recordingError;
+  const disabled = !on || busy || standbyLike || recording || recordingError || forceDisabled;
 
   const handleToggle = () => {
     if (disabled) return;

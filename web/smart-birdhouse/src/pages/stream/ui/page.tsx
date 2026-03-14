@@ -1,9 +1,8 @@
-import { StreamViewer } from '@/widgets';
+import { StreamViewerSection } from '@/widgets';
+import { PageLayout } from '../../layout';
 
-export const StreamPage = () => {
-  return (
-    <div className="layout-container stack">
-      <StreamViewer />
-    </div>
-  );
-};
+export const StreamPage = () => (
+  <PageLayout>
+    <StreamViewerSection />
+  </PageLayout>
+);

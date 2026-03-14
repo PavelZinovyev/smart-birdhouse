@@ -1,21 +1,24 @@
 import { MetricWidget, MetricWidgetTitle } from '@/shared/ui';
-import styles from './environment-chart.module.scss';
+import { SectionContent } from '@/shared/ui/section-content/section-content';
+import { Container } from '@/shared/ui/container/container';
 
-interface EnvironmentChartProps {
+interface EnvironmentSectionProps {
   temperature?: number;
   humidity?: number;
   loading?: boolean;
 }
 
-export const EnvironmentChart = ({
+const SECTION_LABEL = 'Окружающая среда';
+
+export const EnvironmentSection = ({
   temperature = 0,
   humidity = 0,
   loading = false,
-}: EnvironmentChartProps) => {
+}: EnvironmentSectionProps) => {
   return (
-    <article aria-label="environment-heading">
-      <MetricWidgetTitle label="Окружающая среда" />
-      <div className={styles.widgets}>
+    <Container aria-label={SECTION_LABEL}>
+      <MetricWidgetTitle label={SECTION_LABEL} />
+      <SectionContent aria-label={SECTION_LABEL}>
         <MetricWidget
           label="Температура"
           value={loading ? '—' : temperature}
@@ -30,7 +33,7 @@ export const EnvironmentChart = ({
           unit="%"
           variant="humidity"
         />
-      </div>
-    </article>
+      </SectionContent>
+    </Container>
   );
 };
