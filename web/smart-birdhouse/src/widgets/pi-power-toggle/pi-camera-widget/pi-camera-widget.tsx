@@ -41,7 +41,7 @@ export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps)
 
   const busy = isStoppingRecording || isStartingRecording;
   const standbyLike = !manualMode && !recording;
-  const disabled = !on || busy || standbyLike;
+  const disabled = !on || busy || standbyLike || recording;
 
   const handleToggle = () => {
     if (disabled) return;
@@ -58,11 +58,7 @@ export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps)
 
   return (
     <article
-      className={classNames(
-        styles.root,
-        className,
-        (!on || standbyLike) && styles.inactive,
-      )}
+      className={classNames(styles.root, className, disabled && styles.inactive)}
       aria-label="Камера Raspberry Pi"
     >
       <div className={styles.header}>
@@ -79,9 +75,7 @@ export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps)
         <StatusTag variant={tagVariant}>{activityLabel}</StatusTag>
       </div>
       {(startError || stopError) && (
-        <div className={styles.error}>
-          {(startError || stopError)?.message}
-        </div>
+        <div className={styles.error}>{(startError || stopError)?.message}</div>
       )}
     </article>
   );

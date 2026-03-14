@@ -8,7 +8,7 @@ export const MOCK_PI_STATUS: PiStatus = {
 };
 
 export const MOCK_SENSORS: SensorsData = {
-  temperature: 22.5,
+  temperature: 24,
   humidity: 65,
   battery: 4.15,
   battery_percent: 85,

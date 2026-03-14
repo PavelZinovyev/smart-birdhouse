@@ -41,8 +41,13 @@
   color: var(--color-text);
 }
 
+.logo {
+  width: 48px;
+  height: 48px;
+}
+
 .title {
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--color-text);
   text-decoration: none;
