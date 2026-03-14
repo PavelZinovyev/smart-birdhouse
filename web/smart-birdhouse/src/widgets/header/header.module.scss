@@ -30,7 +30,7 @@
   gap: var(--space-4);
   transition: padding 0.2s;
   margin: 0;
-  padding: 8px var(--layout-page-padding) 16px var(--layout-page-padding);
+  padding: var(--layout-page-padding);
 }
 
 .link {

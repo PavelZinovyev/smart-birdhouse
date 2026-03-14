@@ -1,2 +1,2 @@
-export { useScrollTop } from './useScrollTop';
-export { useDownloadFile } from './useDownloadFile';
+export { useScrollTop } from './use-scroll-top';
+export { useDownloadFile } from './use-download-file';

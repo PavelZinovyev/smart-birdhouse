@@ -4,7 +4,7 @@ import {
   getPiActivityState,
   PI_ACTIVITY_LABELS,
   PI_ACTIVITY_TAG_VARIANT,
-} from '../lib/pi-activity-state';
+} from '../../lib/pi-activity-state';
 
 export type PiPowerWidgetPropsBase = Pick<
   ReturnType<typeof usePiStatus>,

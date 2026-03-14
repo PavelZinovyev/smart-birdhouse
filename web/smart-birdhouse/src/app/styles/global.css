@@ -38,10 +38,10 @@
   --space-8: 32px;
   --space-10: 40px;
 
-  --layout-page-padding: var(--space-7);
+  --layout-page-padding: var(--space-4);
   --layout-section-gap: var(--space-6);
   --layout-container-max: 1200px;
-  --layout-header-height: 44px;
+  --layout-header-height: 62px;
   --z-index-main-layer: 10;
 
   --header-bg: rgba(30, 30, 30, 0.92);

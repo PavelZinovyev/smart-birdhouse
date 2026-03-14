@@ -1,9 +1,8 @@
 import { useSensors } from '@/shared/api';
 import { EnvironmentChart } from '@/widgets/environment-chart/environment-chart';
-import { PiSection, VideoList } from '@/widgets';
+import { VideoList, StreamViewer } from '@/widgets';
 import { usePiStatusContext } from '@/shared/api';
-import { StreamViewer } from '@/widgets';
-
+import { PiSection } from '@/widgets/pi-section';
 const POLL_INTERVAL_MS = 5000;
 
 export const MainPage = () => {

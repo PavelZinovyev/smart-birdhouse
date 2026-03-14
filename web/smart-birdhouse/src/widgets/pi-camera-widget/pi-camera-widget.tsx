@@ -4,22 +4,22 @@ import {
   useStopPiRecording,
   useStartPiRecording,
 } from '@/shared/api';
-import classNames from 'classnames';
 import { WidgetLabel, StatusTag } from '@/shared/ui';
 import {
   getCameraActivityState,
   CAMERA_ACTIVITY_LABELS,
   CAMERA_ACTIVITY_TAG_VARIANT,
 } from '../lib/camera-activity-state';
-import { PiPowerToggleSwitch } from '../pi-power-toggle-switch';
+import { ToggleSwitch } from '../../shared/ui/toggle-switch';
 import styles from './pi-camera-widget.module.scss';
+import { WidgetContent } from '@/shared/ui/widget-content/widget-content';
 
 export type PiCameraWidgetProps = Pick<
   ReturnType<typeof usePiStatus>,
   'data' | 'isLoading' | 'isError'
 > & { className?: string };
 
-export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps) => {
+export const PiCameraWidget = ({ data: status }: PiCameraWidgetProps) => {
   const on = status?.pi_power ?? false;
   const { data: cameraStatus } = usePiCameraStatus(on);
   const recording = cameraStatus?.recording ?? false;
@@ -57,13 +57,10 @@ export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps)
   };
 
   return (
-    <article
-      className={classNames(styles.root, className, disabled && styles.inactive)}
-      aria-label="Камера Raspberry Pi"
-    >
+    <WidgetContent ariaLabel="Камера" inactive={disabled}>
       <div className={styles.header}>
         <WidgetLabel label="Камера" />
-        <PiPowerToggleSwitch
+        <ToggleSwitch
           checked={recording}
           disabled={disabled}
           aria-label="Запись"
@@ -77,6 +74,6 @@ export const PiCameraWidget = ({ data: status, className }: PiCameraWidgetProps)
       {(startError || stopError) && (
         <div className={styles.error}>{(startError || stopError)?.message}</div>
       )}
-    </article>
+    </WidgetContent>
   );
 };

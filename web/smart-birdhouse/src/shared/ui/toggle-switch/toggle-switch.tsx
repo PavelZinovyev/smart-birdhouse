@@ -1,7 +1,7 @@
 import classNames from 'classnames';
-import styles from './pi-power-toggle-switch.module.scss';
+import styles from './toggle-switch.module.scss';
 
-interface PiPowerToggleSwitchProps {
+interface ToggleSwitchProps {
   checked: boolean;
   disabled?: boolean;
   'aria-label'?: string;
@@ -9,13 +9,13 @@ interface PiPowerToggleSwitchProps {
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
-export const PiPowerToggleSwitch = ({
+export const ToggleSwitch = ({
   checked,
   disabled = false,
   'aria-label': ariaLabel = 'Питание',
   onClick,
   onKeyDown,
-}: PiPowerToggleSwitchProps) => (
+}: ToggleSwitchProps) => (
   <span
     className={classNames(styles.switch, disabled && styles.disabled)}
     data-checked={checked}
