@@ -31,10 +31,9 @@ export const usePiPowerWidget = ({
   const on = status?.pi_power ?? false;
   const { data: cameraStatus } = usePiCameraStatus(on);
   const manualMode = cameraStatus?.manual_mode ?? false;
-  const recordingError = cameraStatus?.recording_error ?? false;
 
   const isShuttingDown = shutdownRequested && on;
-  const activityState = getPiActivityState(on, isShuttingDown, manualMode, recordingError);
+  const activityState = getPiActivityState(on, isShuttingDown, manualMode);
   const activityLabel = PI_ACTIVITY_LABELS[activityState];
   const tagVariant = PI_ACTIVITY_TAG_VARIANT[activityState];
 

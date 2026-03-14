@@ -24,6 +24,7 @@ export const PiCameraWidget = ({ data: status }: PiCameraWidgetProps) => {
   const { data: cameraStatus } = usePiCameraStatus(on);
   const recording = cameraStatus?.recording ?? false;
   const manualMode = cameraStatus?.manual_mode ?? false;
+  const recordingError = cameraStatus?.recording_error ?? false;
   const {
     mutate: stopRecording,
     isPending: isStoppingRecording,
@@ -35,13 +36,13 @@ export const PiCameraWidget = ({ data: status }: PiCameraWidgetProps) => {
     error: startError,
   } = useStartPiRecording();
 
-  const activityState = getCameraActivityState(on, recording, manualMode);
+  const activityState = getCameraActivityState(on, recording, manualMode, recordingError);
   const activityLabel = CAMERA_ACTIVITY_LABELS[activityState];
   const tagVariant = CAMERA_ACTIVITY_TAG_VARIANT[activityState];
 
   const busy = isStoppingRecording || isStartingRecording;
   const standbyLike = !manualMode && !recording;
-  const disabled = !on || busy || standbyLike || recording;
+  const disabled = !on || busy || standbyLike || recording || recordingError;
 
   const handleToggle = () => {
     if (disabled) return;
