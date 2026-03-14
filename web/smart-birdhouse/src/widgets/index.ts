@@ -6,3 +6,4 @@ export { PiPowerToggle, PiSection } from './pi-power-toggle';
 export { VideoList } from './video-list';
 export { StreamViewer } from './stream-viewer';
 export { VideosApiLog } from './videos-api-log/videos-api-log';
+export { BatteryWidget } from './battery-widget/battery-widget';
