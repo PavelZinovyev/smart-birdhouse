@@ -10,6 +10,7 @@ import { WidgetContent } from '@/shared/ui/widget-content/widget-content';
 export type PiPowerWidgetProps = PiPowerWidgetPropsBase & {
   className?: string;
   forceDisabled?: boolean;
+  onShutdownRequest?: () => void;
 };
 
 export const PiPowerWidget = ({
@@ -17,9 +18,10 @@ export const PiPowerWidget = ({
   isLoading,
   isError,
   forceDisabled = false,
+  onShutdownRequest,
 }: PiPowerWidgetProps) => {
   const { on, activityLabel, tagVariant, disabled, handleChange, handleKeyDown } = usePiPowerWidget(
-    { data: status, isLoading, isError },
+    { data: status, isLoading, isError, onShutdownRequest },
   );
   const isDisabled = disabled || forceDisabled;
 

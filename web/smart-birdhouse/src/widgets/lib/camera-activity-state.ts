@@ -31,8 +31,9 @@ export function getCameraActivityState(
   recording: boolean,
   manualMode: boolean,
   recordingError?: boolean,
+  unavailable?: boolean,
 ): CameraActivityStateValue {
-  if (!piOn) return CameraActivityState.UNAVAILABLE;
+  if (!piOn || unavailable) return CameraActivityState.UNAVAILABLE;
   if (recordingError) return CameraActivityState.RECORDING_ERROR;
   if (recording) return CameraActivityState.RECORDING;
   if (!manualMode) return CameraActivityState.UNAVAILABLE;

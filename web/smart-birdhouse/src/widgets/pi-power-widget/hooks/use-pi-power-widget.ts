@@ -9,7 +9,10 @@ import {
 export type PiPowerWidgetPropsBase = Pick<
   ReturnType<typeof usePiStatus>,
   'data' | 'isLoading' | 'isError'
->;
+> & {
+  /** Вызывается при запросе выключения (до того как pi_power станет false) */
+  onShutdownRequest?: () => void;
+};
 
 export interface UsePiPowerWidgetResult {
   on: boolean;
@@ -24,6 +27,7 @@ export const usePiPowerWidget = ({
   data: status,
   isLoading,
   isError,
+  onShutdownRequest,
 }: PiPowerWidgetPropsBase): UsePiPowerWidgetResult => {
   const { turnOnManual, turnOff, isPending } = usePiPower();
   const [shutdownRequested, setShutdownRequested] = useState(false);
@@ -44,11 +48,12 @@ export const usePiPowerWidget = ({
     if (disabled) return;
     if (on) {
       setShutdownRequested(true);
+      onShutdownRequest?.();
       turnOff();
     } else {
       turnOnManual();
     }
-  }, [disabled, on, turnOff, turnOnManual]);
+  }, [disabled, on, turnOff, turnOnManual, onShutdownRequest]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

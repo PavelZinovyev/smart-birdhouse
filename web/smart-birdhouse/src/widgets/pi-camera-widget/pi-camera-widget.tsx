@@ -17,14 +17,23 @@ import { WidgetContent } from '@/shared/ui/widget-content/widget-content';
 export type PiCameraWidgetProps = Pick<
   ReturnType<typeof usePiStatus>,
   'data' | 'isLoading' | 'isError'
-> & { className?: string; forceDisabled?: boolean };
+> & {
+  className?: string;
+  forceDisabled?: boolean;
+  forceUnavailable?: boolean;
+};
 
-export const PiCameraWidget = ({ data: status, forceDisabled = false }: PiCameraWidgetProps) => {
+export const PiCameraWidget = ({
+  data: status,
+  forceDisabled = false,
+  forceUnavailable = false,
+}: PiCameraWidgetProps) => {
   const on = status?.pi_power ?? false;
   const { data: cameraStatus } = usePiCameraStatus(on);
   const recording = cameraStatus?.recording ?? false;
   const manualMode = cameraStatus?.manual_mode ?? false;
   const recordingError = cameraStatus?.recording_error ?? false;
+
   const {
     mutate: stopRecording,
     isPending: isStoppingRecording,
@@ -36,7 +45,13 @@ export const PiCameraWidget = ({ data: status, forceDisabled = false }: PiCamera
     error: startError,
   } = useStartPiRecording();
 
-  const activityState = getCameraActivityState(on, recording, manualMode, recordingError);
+  const activityState = getCameraActivityState(
+    on,
+    recording,
+    manualMode,
+    recordingError,
+    forceUnavailable,
+  );
   const activityLabel = CAMERA_ACTIVITY_LABELS[activityState];
   const tagVariant = CAMERA_ACTIVITY_TAG_VARIANT[activityState];
 

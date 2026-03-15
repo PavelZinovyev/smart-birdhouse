@@ -1,12 +1,12 @@
+import { useState } from 'react';
 import { usePiStatusContext, usePiCameraStatus } from '@/shared/api';
-import { MetricWidgetTitle, StatusTag } from '@/shared/ui';
+import { MetricWidgetTitle } from '@/shared/ui';
 import { PiPowerWidget } from '../pi-power-widget';
 import { PiCameraWidget } from '../pi-camera-widget';
-import styles from './pi-section.module.scss';
 import { Container } from '@/shared/ui/container/container';
+import { SectionContent } from '@/shared/ui/section-content/section-content';
 
 const PI_SECTION_LABEL = 'Raspberry Pi';
-
 const AUTO_RECORDING_LABEL = 'Замечено движение, идёт авто-запись';
 
 export const PiSection = () => {
@@ -17,14 +17,27 @@ export const PiSection = () => {
   const manualMode = cameraStatus?.manual_mode ?? false;
   const autoRecording = on && !manualMode && recording;
 
+  const [shutdownRequested, setShutdownRequested] = useState(false);
+  const isShuttingDown = shutdownRequested && on;
+  const cameraDisabled = autoRecording || isShuttingDown;
+
   return (
     <Container aria-labely={PI_SECTION_LABEL}>
       <MetricWidgetTitle id={PI_SECTION_LABEL} label={PI_SECTION_LABEL} />
-      {autoRecording && <StatusTag variant="red">{AUTO_RECORDING_LABEL}</StatusTag>}
-      <div className={styles.wrapper} role="group">
-        <PiPowerWidget {...piStatus} forceDisabled={autoRecording} />
-        <PiCameraWidget {...piStatus} forceDisabled={autoRecording} />
-      </div>
+      <SectionContent
+        state={autoRecording ? { label: AUTO_RECORDING_LABEL, variant: 'red' } : undefined}
+      >
+        <PiPowerWidget
+          {...piStatus}
+          forceDisabled={autoRecording}
+          onShutdownRequest={() => setShutdownRequested(true)}
+        />
+        <PiCameraWidget
+          {...piStatus}
+          forceDisabled={cameraDisabled}
+          forceUnavailable={isShuttingDown}
+        />
+      </SectionContent>
     </Container>
   );
 };
