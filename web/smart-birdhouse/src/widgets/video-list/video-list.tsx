@@ -1,15 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useDeletePiVideo, usePiVideos } from '@/shared/api';
-import { ROUTES } from '@/shared/constants/routes';
 import type { IPiVideoFile } from '@/shared/api';
 import type { VideoListGridVariant, VideoListLayout } from '@/shared/types';
 import { MetricWidgetTitle } from '@/shared/ui';
-import styles from './video-list.module.scss';
 import { VideoListContent } from './video-list-content';
 import { VideoModal } from './video-modal';
+import { VideoListCarouselView } from './video-list-carousel-view';
 import { PageLayout } from '@/pages/layout';
-import { Container } from '@/shared/ui/container/container';
 
 interface IVideoListProps {
   layout?: VideoListLayout;
@@ -57,17 +54,14 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideo
     if (!shouldShowCarouselWidget && (isEmpty || isErrorState)) {
       return null;
     }
-
     return (
-      <>
-        <Link to={ROUTES.VIDEOS} className={styles.link}>
-          <Container aria-label={CAMERA_VIDEOS_LABEL}>
-            {title}
-            <article aria-label={CAMERA_VIDEOS_LABEL}>{content}</article>
-          </Container>
-        </Link>
-        <VideoModal file={selectedVideo} onClose={() => setSelectedVideo(null)} />
-      </>
+      <VideoListCarouselView
+        title={title}
+        content={content}
+        selectedVideo={selectedVideo}
+        onCloseModal={() => setSelectedVideo(null)}
+        ariaLabel={CAMERA_VIDEOS_LABEL}
+      />
     );
   }
 

@@ -14,10 +14,13 @@ export function usePiVideos(refetchIntervalMs = REFETCH_INTERVAL_PI_STATUS_MS) {
   });
 
   const files: IPiVideoFile[] = query.data?.files ?? [];
+  const hasNoFilesYet = files.length === 0;
+  const loading =
+    query.isPending || (query.isFetching && hasNoFilesYet);
 
   return {
     files,
-    loading: query.isPending,
+    loading,
     error: query.error?.message ?? null,
     isSuccess: query.isSuccess && query.data !== null,
     refetch: query.refetch,
