@@ -57,7 +57,8 @@ export const PiCameraWidget = ({
 
   const busy = isStoppingRecording || isStartingRecording;
   const standbyLike = !manualMode && !recording;
-  const disabled = !on || busy || standbyLike || recording || recordingError || forceDisabled;
+  const autoRecording = recording && !manualMode;
+  const disabled = !on || busy || standbyLike || autoRecording || recordingError || forceDisabled;
 
   const handleToggle = () => {
     if (disabled) return;

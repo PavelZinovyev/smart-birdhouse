@@ -26,6 +26,10 @@ export const VideoList = ({ layout = 'carousel', gridVariant = 'small' }: IVideo
   const isEmpty = isSuccess && files.length === 0;
   const shouldShowCarouselWidget = isCarouselWithVideos && (loading || hasVideos);
 
+  if (isCarouselWithVideos && isErrorState) {
+    return null;
+  }
+
   const handleDelete = (file: IPiVideoFile) => deleteVideo(file.name);
 
   const content = (

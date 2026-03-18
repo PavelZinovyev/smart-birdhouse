@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { usePiStatusContext, usePiCameraStatus } from '@/shared/api';
 import { MetricWidgetTitle } from '@/shared/ui';
 import { PiPowerWidget } from '../pi-power-widget';
@@ -18,6 +18,20 @@ export const PiSection = () => {
   const autoRecording = on && !manualMode && recording;
 
   const [shutdownRequested, setShutdownRequested] = useState(false);
+  const [autoRecordingVisual, setAutoRecordingVisual] = useState(false);
+
+  useEffect(() => {
+    if (autoRecording) {
+      // eslint-disable-next-line
+      setAutoRecordingVisual(true);
+      return;
+    }
+
+    if (!autoRecording && autoRecordingVisual) {
+      const timeoutId = setTimeout(() => setAutoRecordingVisual(false), 5000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [autoRecording, autoRecordingVisual]);
   const isShuttingDown = shutdownRequested && on;
   const cameraDisabled = autoRecording || isShuttingDown;
 
@@ -25,7 +39,7 @@ export const PiSection = () => {
     <Container aria-labely={PI_SECTION_LABEL}>
       <MetricWidgetTitle id={PI_SECTION_LABEL} label={PI_SECTION_LABEL} />
       <SectionContent
-        state={autoRecording ? { label: AUTO_RECORDING_LABEL, variant: 'red' } : undefined}
+        state={autoRecordingVisual ? { label: AUTO_RECORDING_LABEL, variant: 'red' } : undefined}
       >
         <PiPowerWidget
           {...piStatus}
