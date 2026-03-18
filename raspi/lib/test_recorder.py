@@ -23,6 +23,7 @@ HEIGHT = 1080
 BITRATE = 30000000  # 30 Mbps
 
 AUDIO_DEVICE = os.getenv("AUDIO_DEVICE", "plughw:0,0")
+audio_enabled = True  # если аудиоустройство недоступно, переключаемся на запись без звука
 
 os.makedirs(VIDEO_DIR, exist_ok=True)
 
@@ -32,7 +33,7 @@ def log(msg: str) -> None:
     print(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}")
 
 
-def build_rpicam_cmd(output_path: str, duration_s: int) -> list[str]:
+def build_rpicam_cmd(output_path: str, duration_s: int, with_audio: bool = True) -> list[str]:
     """
     Собирает команду rpicam-vid с теми же параметрами, что в bird_recorder.py,
     но с ограниченной длительностью (duration_s секунд).
@@ -41,7 +42,7 @@ def build_rpicam_cmd(output_path: str, duration_s: int) -> list[str]:
         output_path: путь к выходному .mp4 файлу.
         duration_s: длительность записи в секундах.
     """
-    return [
+    cmd = [
         "rpicam-vid",
         "-t",
         str(duration_s * 1000),
@@ -55,17 +56,33 @@ def build_rpicam_cmd(output_path: str, duration_s: int) -> list[str]:
         "libav",
         "--libav-format",
         "mp4",
-        "--libav-audio",
-        "--audio-source", "alsa",
-        "--audio-codec", "aac",
-        "--audio-device",
-        AUDIO_DEVICE,
-        "--bitrate",
-        str(BITRATE),
-        "--nopreview",
-        "-o",
-        output_path,
     ]
+
+    if with_audio and AUDIO_DEVICE:
+        cmd.extend(
+            [
+                "--libav-audio",
+                "--audio-source",
+                "alsa",
+                "--audio-codec",
+                "aac",
+                "--audio-device",
+                AUDIO_DEVICE,
+            ]
+        )
+    else:
+        log("🔇 Audio disabled, recording test video without sound")
+
+    cmd.extend(
+        [
+            "--bitrate",
+            str(BITRATE),
+            "--nopreview",
+            "-o",
+            output_path,
+        ]
+    )
+    return cmd
 
 
 def main() -> None:
@@ -78,6 +95,8 @@ def main() -> None:
     """
     import sys
 
+    global audio_enabled
+
     duration_s = MAX_RECORD_TIME
     if len(sys.argv) >= 2:
         try:
@@ -88,7 +107,10 @@ def main() -> None:
 
     ts = int(time.time())
     output_path = os.path.join(VIDEO_DIR, f"video_{ts}_test.mp4")
-    cmd = build_rpicam_cmd(output_path, duration_s)
+
+    # сначала пробуем с аудио (если ещё не отключали), при ошибке повторяем без звука
+    try_audio = audio_enabled
+    cmd = build_rpicam_cmd(output_path, duration_s, with_audio=try_audio)
 
     log(f"Старт тестовой записи на {duration_s} с.")
     log(f"Файл: {output_path}")
@@ -99,7 +121,31 @@ def main() -> None:
     try:
         process = subprocess.Popen(cmd)
         process.wait()
-        log("Запись завершена.")
+        rc = process.returncode
+
+        if rc != 0:
+            log(f"⚠️ rpicam-vid завершился с кодом {rc}")
+
+            if try_audio:
+                # предполагаем, что могла быть проблема с аудио — повторяем без звука
+                audio_enabled = False
+                noaudio_path = os.path.join(VIDEO_DIR, f"video_{ts}_test_noaudio.mp4")
+                log("🔇 Отключаем аудио для теста и пробуем записать только видео.")
+                log(f"Файл (без звука): {noaudio_path}")
+                cmd = build_rpicam_cmd(noaudio_path, duration_s, with_audio=False)
+                log("Команда (без звука): " + " ".join(cmd))
+
+                process = subprocess.Popen(cmd)
+                process.wait()
+                rc2 = process.returncode
+                if rc2 != 0:
+                    log(f"❌ rpicam-vid без аудио тоже завершился с кодом {rc2}")
+                else:
+                    log("✅ Тестовая запись без звука успешно завершена.")
+            else:
+                log("❌ rpicam-vid завершился с ошибкой (аудио уже было отключено).")
+        else:
+            log("Запись завершена.")
     except KeyboardInterrupt:
         log("Получен Ctrl+C, останавливаем rpicam-vid...")
         if process is not None and process.poll() is None:

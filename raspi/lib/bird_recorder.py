@@ -34,6 +34,25 @@ THUMB_DIR = os.path.join(VIDEO_DIR, ".thumbs")
 # ALSA: plughw:0,0 часто надёжнее hw:0,0. Если микрофон на card 1 — AUDIO_DEVICE=plughw:1,0.
 AUDIO_DEVICE = os.getenv("AUDIO_DEVICE", "plughw:0,0")
 
+
+def _probe_audio_device(dev: str) -> bool:
+    """Пробует найти аудиоустройство в ALSA. Если нет — пишем без звука."""
+    if not dev:
+        return False
+    try:
+        proc = subprocess.run(["aplay", "-L"], capture_output=True, text=True, timeout=3)
+        if proc.returncode != 0:
+            print(f"audio probe failed with code {proc.returncode}, disabling audio")
+            return False
+        if dev in (proc.stdout or ""):
+            print(f"🔊 Audio device '{dev}' detected, recording with sound")
+            return True
+        print(f"🔇 Audio device '{dev}' not found in aplay -L, recording without sound")
+        return False
+    except Exception as e:
+        print(f"audio probe failed, disabling audio: {e}")
+        return False
+
 GPIO.setmode(GPIO.BCM)
 
 GPIO.setup(PI_SIGNAL_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -49,6 +68,8 @@ recording_error = False  # true, если последняя запись зав
 manual_mode = False
 stream_process = None
 stream_lock = threading.Lock()
+audio_enabled = _probe_audio_device(AUDIO_DEVICE)  # если аудиоустройство не найдено, пишем без звука
+current_filename = None  # актуальный файл записи (нужно для ожидания финализации MP4)
 
 # ---------- MODE ----------
 if GPIO.input(PI_MODE_PIN) == GPIO.HIGH:
@@ -61,43 +82,155 @@ else:
 def request_os_shutdown():
     """запрашивает мягкое выключение распи"""
     try:
-        subprocess.Popen(["sudo", "shutdown", "-h", "now"])
+        subprocess.Popen(["sudo", "-n", "shutdown", "-h", "now"])
     except Exception as e:
         print(f"failed to request os shutdown: {e}")
 
 # ---------- RECORD ----------
+def _build_rpicam_cmd(filename: str, with_audio: bool) -> list[str]:
+    """Собирает команду rpicam-vid. При with_audio=False пишет только видео (без звука)."""
+    cmd = [
+        "rpicam-vid",
+        "-t",
+        "0",
+        "--width",
+        "1920",
+        "--height",
+        "1080",
+        "--framerate",
+        "30",
+        "--codec",
+        "libav",
+        "--libav-format",
+        "mp4",
+    ]
+    if with_audio and AUDIO_DEVICE:
+        cmd.extend(
+            [
+                "--libav-audio",
+                "--audio-source",
+                "alsa",
+                "--audio-codec",
+                "aac",
+                "--audio-device",
+                AUDIO_DEVICE,
+            ]
+        )
+    else:
+        print("аudio disabled, recording video without sound")
+
+    cmd.extend(
+        [
+            "--bitrate",
+            "30000000",
+            "--nopreview",
+            "-o",
+            filename,
+        ]
+    )
+    return cmd
+
+
+def _read_stderr_nonblocking(proc, limit: int = 2048) -> str:
+    """Пытается прочитать кусок stderr из процесса, не блокируя надолго."""
+    if proc.stderr is None:
+        return ""
+    try:
+        data = proc.stderr.read1(limit)
+        return data.decode(errors="ignore") if data else ""
+    except Exception:
+        return ""
+
+
 def start_recording():
-    global process, recording, recording_error
+    global process, recording, recording_error, audio_enabled, current_filename
 
     if recording:
         return
 
     recording_error = False  # сброс при новом старте записи
     filename = os.path.join(VIDEO_DIR, f"video_{int(time.time())}.mp4")
+    current_filename = filename
 
-    process = subprocess.Popen([
-        "rpicam-vid",
-        "-t", "0",
-        "--width", "1920",
-        "--height", "1080",
-        "--framerate", "30",
-        "--codec", "libav",
-        "--libav-format", "mp4",
-        "--libav-audio",
-        "--audio-source", "alsa",
-        "--audio-codec", "aac",
-        "--audio-device", AUDIO_DEVICE,
-        "--bitrate", "30000000",
-        "--nopreview",
-        "-o", filename
-    ])
+    # сначала пробуем с аудио (если оно ещё не было отключено), при быстром фейле — повторяем без звука
+    try_audio = audio_enabled
+    cmd = _build_rpicam_cmd(filename, with_audio=try_audio)
+
+    print("rpicam-vid cmd:", " ".join(cmd))
+
+    try:
+        process = subprocess.Popen(cmd, stderr=subprocess.PIPE)
+    except FileNotFoundError as e:
+        # rpicam-vid не найден — это уже фатальная ошибка
+        recording_error = True
+        print(f"❌ Failed to start rpicam-vid: {e}")
+        process = None
+        return
+
+    # даём процессу чуть времени стартануть и проверить устройство аудио
+    time.sleep(0.5)
+
+    if process.poll() is not None and process.returncode != 0:
+        # процесс сразу упал — забираем stderr, чтобы увидеть реальную причину
+        try:
+            _, stderr_data = process.communicate(timeout=1)
+            stderr_text = stderr_data.decode(errors="ignore") if stderr_data else ""
+        except Exception:
+            stderr_text = ""
+        print(f"⚠️ rpicam-vid exited early with code {process.returncode}")
+        if stderr_text:
+            print(f"stderr (early): {stderr_text}")
+
+        if try_audio:
+            # больше не будем пытаться писать аудио в следующих запусках
+            audio_enabled = False
+            print("🔇 Disabling audio and retrying recording without sound")
+            filename = os.path.join(VIDEO_DIR, f"video_{int(time.time())}.mp4")
+            cmd_no_audio = _build_rpicam_cmd(filename, with_audio=False)
+            print("rpicam-vid cmd (no audio):", " ".join(cmd_no_audio))
+            try:
+                process = subprocess.Popen(cmd_no_audio, stderr=subprocess.PIPE)
+            except FileNotFoundError as e:
+                recording_error = True
+                print(f"❌ Failed to start rpicam-vid without audio: {e}")
+                process = None
+                return
+            # небольшой чек что второй запуск жив
+            time.sleep(0.5)
+            if process.poll() is not None and process.returncode != 0:
+                try:
+                    _, stderr_data = process.communicate(timeout=1)
+                    stderr_text = stderr_data.decode(errors="ignore") if stderr_data else ""
+                except Exception:
+                    stderr_text = ""
+                recording_error = True
+                print(
+                    f"❌ rpicam-vid without audio also failed with code {process.returncode}"
+                )
+                if stderr_text:
+                    print(f"stderr (no-audio): {stderr_text}")
+                process = None
+                return
+        else:
+            # мы уже запускались без аудио — просто считаем это ошибкой
+            recording_error = True
+            try:
+                _, stderr_data = process.communicate(timeout=1)
+                stderr_text = stderr_data.decode(errors="ignore") if stderr_data else ""
+            except Exception:
+                stderr_text = ""
+            print("❌ rpicam-vid failed to start (audio already disabled)")
+            if stderr_text:
+                print(f"stderr (final): {stderr_text}")
+            process = None
+            return
 
     recording = True
     print("🎬 Recording started")
 
 
 def stop_recording():
-    global process, recording, recording_error
+    global process, recording, recording_error, current_filename
 
     if not process:
         return
@@ -105,12 +238,49 @@ def stop_recording():
     process.send_signal(signal.SIGINT)
     process.wait()
     if process.returncode is not None and process.returncode != 0:
-        recording_error = True
-        print(f"⚠️ Recording exited with code {process.returncode}")
+        # rpicam-vid при SIGINT может вернуть специфические коды (например, 130, 255) — считаем их нормой.
+        if process.returncode not in (130, 255, -2):
+            recording_error = True
+            stderr_tail = _read_stderr_nonblocking(process)
+            print(f"⚠️ Recording exited with code {process.returncode}")
+            if stderr_tail:
+                print(f"stderr: {stderr_tail}")
 
     process = None
     recording = False
     print("⏹ Recording stopped")
+
+
+def _wait_for_file_stable(path: str | None, timeout_s: float = 8.0, poll_s: float = 0.5) -> None:
+    """
+    Ждёт пока размер MP4 стабилизируется (похоже на "дописывание/финализацию" после остановки).
+    Это критично для авто-режима, когда после stop мы начинаем завершать/выключать систему.
+    """
+    if not path:
+        return
+
+    last_size = -1
+    stable_checks = 0
+    start = time.time()
+
+    while time.time() - start < timeout_s:
+        try:
+            if not os.path.isfile(path):
+                time.sleep(poll_s)
+                continue
+            size = os.path.getsize(path)
+            if size > 0 and size == last_size:
+                stable_checks += 1
+                if stable_checks >= 2:
+                    return
+            else:
+                last_size = size
+                stable_checks = 0
+        except OSError:
+            pass
+        time.sleep(poll_s)
+
+    print(f"⚠️ file not stable within timeout: {path}")
 
 
 # ---------- FILE LIST ----------
@@ -392,6 +562,13 @@ def gpio_loop():
 
             if signal_state == GPIO.LOW and recording:
                 stop_recording()
+                # Важно: перед выключением/READY=LOW дождёмся финализации MP4 на диске.
+                # Без этого иногда получается "битый" MP4, который даёт превью, но не открывается в браузере.
+                _wait_for_file_stable(current_filename)
+                try:
+                    subprocess.run(["sync"], check=False, timeout=2)
+                except Exception:
+                    pass
                 GPIO.output(PI_READY_PIN, GPIO.LOW)
                 request_os_shutdown()
 
