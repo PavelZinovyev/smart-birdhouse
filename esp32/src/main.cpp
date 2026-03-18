@@ -54,7 +54,8 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 // ---------- Settings ----------
 const int BIRD_TRIGGER_DISTANCE = 50;
 const int STABLE_COUNT_REQUIRED = 2;
-const unsigned long PI_SHUTDOWN_DELAY_MS = 20000;  // задержка перед отключением питания Pi после запроса shutdown (мс)
+const unsigned long MAX_AUTO_RECORDING_MS = 42000;   // максимум длительности авто-записи (мс)
+const unsigned long PI_SHUTDOWN_DELAY_MS = 20000;    // задержка перед отключением питания Pi после запроса shutdown (мс)
 
 // ---------- State ----------
 enum SystemState {
@@ -401,6 +402,7 @@ void loop() {
 
   unsigned long now = millis();
 
+
   switch (state) {
     case IDLE:
       if (!piPoweredByUser && birdDetected(sensors.distance)) {
@@ -412,6 +414,8 @@ void loop() {
 
     case POWERING_PI:
       if (digitalRead(PI_READY_PIN) == HIGH) {
+        // Pi загрузилась и подняла READY — подаём сигнал начала записи.
+        Serial.println(F("✅ Pi ready → start recording (SIGNAL=HIGH)"));
         digitalWrite(PI_SIGNAL_PIN, HIGH);
         state = RECORDING;
         stateStartTime = now;
@@ -419,6 +423,13 @@ void loop() {
       break;
 
     case RECORDING:
+      // Защита от слишком длинной авто-записи: по таймеру опускаем SIGNAL.
+      if (!piPoweredByUser && (now - stateStartTime > MAX_AUTO_RECORDING_MS)) {
+        Serial.println(F("⏱ Max auto recording duration reached → stop record signal (SIGNAL=LOW)"));
+        digitalWrite(PI_SIGNAL_PIN, LOW);
+      }
+
+      // После остановки записи bird_recorder.py опустит READY → можно переходить к мягкому выключению.
       if (digitalRead(PI_READY_PIN) == LOW) {
         Serial.println(F("🔁 Pi requested shutdown, waiting before power off"));
         state = SHUTTING_DOWN_PI;
@@ -427,6 +438,7 @@ void loop() {
       break;
 
     case SHUTTING_DOWN_PI:
+      digitalWrite(PI_SIGNAL_PIN, LOW);
       if (now - stateStartTime > PI_SHUTDOWN_DELAY_MS) {
         piPowerOff();
         state = COOLDOWN;
@@ -435,6 +447,7 @@ void loop() {
       break;
 
     case COOLDOWN:
+      digitalWrite(PI_SIGNAL_PIN, LOW);
       if (now - stateStartTime > 5000) {
         state = IDLE;
       }

@@ -20,6 +20,9 @@ Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 const int BIRD_TRIGGER_DISTANCE = 50;
 const int STABLE_COUNT_REQUIRED = 2;
 
+# 42000
+const unsigned long MAX_AUTO_RECORDING_MS = 10000; 
+
 // ---------- STATES ----------
 enum SystemState {
   IDLE,
@@ -164,6 +167,13 @@ void loop() {
     case RECORDING:
       Serial.println("STATE: RECORDING");
 
+      // Ограничение длительности авто-записи
+      if (!manualMode && (now - stateStartTime > MAX_AUTO_RECORDING_MS)) {
+        Serial.println("⏱ MAX AUTO RECORDING DURATION → STOP SIGNAL");
+        digitalWrite(PI_SIGNAL_PIN, LOW);
+      }
+
+      // После остановки записи bird_recorder.py опустит READY → можно выключать питание.
       if (digitalRead(PI_READY_PIN) == LOW) {
         Serial.println("⏹ RECORD FINISHED → POWER OFF");
         piPowerOff();
