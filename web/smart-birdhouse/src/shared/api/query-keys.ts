@@ -6,5 +6,6 @@ export const queryKeys = {
     status: ['pi', 'status'] as const,
     cameraStatus: ['pi', 'cameraStatus'] as const,
     videos: ['pi', 'videos'] as const,
+    time: ['pi', 'time'] as const,
   },
 } as const;
