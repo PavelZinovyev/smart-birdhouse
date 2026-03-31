@@ -14,7 +14,7 @@ export {
 } from './pi';
 export { usePiStatus, usePiPower } from './use-pi-power';
 export { usePiCameraStatus, useStopPiRecording, useStartPiRecording } from './use-pi-camera-status';
-export { useAutoSyncPiTime, type UseAutoSyncPiTimeResult } from './use-pi-time';
+export { useSyncPiTimeWhenPiOn } from './use-pi-time';
 export { usePiStatusContext } from './pi-status-context';
 export { PiStatusProvider } from './pi-status-provider';
 export { queryKeys } from './query-keys';

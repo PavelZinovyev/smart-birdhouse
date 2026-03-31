@@ -1,34 +1,17 @@
 import { useEffect, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchPiTime, syncPiTimeFromPhone } from './pi';
-import { queryKeys } from './query-keys';
-import { REFETCH_INTERVAL_PI_TIME_MS, STALE_TIME_OFFSET_MS } from '@/shared/constants/query';
+import { syncPiTimeFromPhone } from './pi';
 
 /** Защита от двойного вызова в React Strict Mode и от слишком частых POST. */
 const SYNC_DEBOUNCE_MS = 1500;
 
 let lastSyncAt = 0;
 
-export type UseAutoSyncPiTimeResult = {
-  /** Строка времени с Pi для вывода в разметке; `null` — Pi выключен, подпись не показываем. */
-  piTimeLabel: string | null;
-};
-
 /**
- * Автосинхронизация времени телефона с Raspberry и опрос отображаемого времени Pi.
+ * При включении Raspberry Pi передаёт на неё время телефона.
+ * В UI ничего не показывает — нужно для корректных имён файлов и mtime на Pi (превью в списке видео).
  */
-export function useAutoSyncPiTime(piPowerOn: boolean): UseAutoSyncPiTimeResult {
-  const queryClient = useQueryClient();
+export function useSyncPiTimeWhenPiOn(piPowerOn: boolean): void {
   const prevOnRef = useRef<boolean | undefined>(undefined);
-
-  const { data, isLoading } = useQuery({
-    queryKey: queryKeys.pi.time,
-    queryFn: fetchPiTime,
-    enabled: piPowerOn,
-    refetchInterval: REFETCH_INTERVAL_PI_TIME_MS,
-    refetchIntervalInBackground: false,
-    staleTime: REFETCH_INTERVAL_PI_TIME_MS - STALE_TIME_OFFSET_MS,
-  });
 
   useEffect(() => {
     if (!piPowerOn) {
@@ -50,16 +33,8 @@ export function useAutoSyncPiTime(piPowerOn: boolean): UseAutoSyncPiTimeResult {
     }
     lastSyncAt = now;
 
-    syncPiTimeFromPhone(now)
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.pi.time });
-      })
-      .catch(() => {
-        // Pi недоступен или сеть — не мешаем UI
-      });
-  }, [piPowerOn, queryClient]);
-
-  const piTimeLabel = !piPowerOn ? null : isLoading ? 'загрузка…' : (data?.local ?? '—');
-
-  return { piTimeLabel };
+    syncPiTimeFromPhone(now).catch(() => {
+      // Pi недоступен или сеть — не мешаем UI
+    });
+  }, [piPowerOn]);
 }
