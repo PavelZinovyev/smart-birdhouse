@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { usePiStatusContext, usePiCameraStatus } from '@/shared/api';
+import { usePiStatusContext, usePiCameraStatus, useAutoSyncPiTime } from '@/shared/api';
 import { MetricWidgetTitle } from '@/shared/ui';
 import { PiPowerWidget } from '../pi-power-widget';
 import { PiCameraWidget } from '../pi-camera-widget';
@@ -12,6 +12,7 @@ const AUTO_RECORDING_LABEL = 'Замечено движение, идёт авт
 export const PiSection = () => {
   const piStatus = usePiStatusContext();
   const on = piStatus.data?.pi_power ?? false;
+  const { piTimeLabel } = useAutoSyncPiTime(on);
   const { data: cameraStatus } = usePiCameraStatus(on);
   const recording = cameraStatus?.recording ?? false;
   const manualMode = cameraStatus?.manual_mode ?? false;
@@ -37,7 +38,14 @@ export const PiSection = () => {
 
   return (
     <Container aria-labely={PI_SECTION_LABEL}>
-      <MetricWidgetTitle id={PI_SECTION_LABEL} label={PI_SECTION_LABEL} />
+      <MetricWidgetTitle id={PI_SECTION_LABEL} label={PI_SECTION_LABEL}>
+        {piTimeLabel != null ? (
+          <>
+            {' '}
+            <span title="Время на Raspberry (для имён видео)">{piTimeLabel}</span>
+          </>
+        ) : null}
+      </MetricWidgetTitle>
       <SectionContent
         state={autoRecordingVisual ? { label: AUTO_RECORDING_LABEL, variant: 'red' } : undefined}
       >
