@@ -14,6 +14,9 @@ import time
 import os
 import signal
 import threading
+import json
+import datetime
+import re
 from flask import Flask, jsonify, request, send_file, Response, stream_with_context
 from urllib.parse import unquote
 
@@ -29,25 +32,52 @@ PI_READY_PIN = 27
 
 VIDEO_DIR = "/home/pavlinmavlin/videos"
 THUMB_DIR = os.path.join(VIDEO_DIR, ".thumbs")
+# Смещение wall-clock относительно time.time() (секунды); сохраняется на диск после синка с телефона.
+TIME_OFFSET_PATH = os.path.join(VIDEO_DIR, ".pi_time_offset.json")
+_time_offset_lock = threading.Lock()
+_time_offset_s = 0.0
 
 # ---------- AUDIO ----------
-# ALSA: plughw:0,0 часто надёжнее hw:0,0. Если микрофон на card 1 — AUDIO_DEVICE=plughw:1,0.
+# ALSA capture: см. arecord -L. Пример: plughw:CARD=Device,DEV=0 или plughw:0,0 (card 0).
 AUDIO_DEVICE = os.getenv("AUDIO_DEVICE", "plughw:0,0")
 
 
+def _arecord_l_has_card_device(list_text: str, card: int, device: int) -> bool:
+    """Проверяет, что arecord -l содержит пару card N / device M (для plughw:N,M)."""
+    for line in list_text.splitlines():
+        line = line.strip()
+        if not line.startswith("card "):
+            continue
+        m_card = re.match(r"card\s+(\d+):", line)
+        if not m_card or int(m_card.group(1)) != card:
+            continue
+        if re.search(rf"device\s+{device}:", line):
+            return True
+    return False
+
+
 def _probe_audio_device(dev: str) -> bool:
-    """Пробует найти аудиоустройство в ALSA. Если нет — пишем без звука."""
+    """Проверяет наличие устройства захвата в ALSA (arecord), иначе пишем без звука."""
     if not dev:
         return False
     try:
-        proc = subprocess.run(["aplay", "-L"], capture_output=True, text=True, timeout=3)
+        proc = subprocess.run(["arecord", "-L"], capture_output=True, text=True, timeout=3)
         if proc.returncode != 0:
             print(f"audio probe failed with code {proc.returncode}, disabling audio")
             return False
-        if dev in (proc.stdout or ""):
+        listing_l = proc.stdout or ""
+        if dev in listing_l:
             print(f"🔊 Audio device '{dev}' detected, recording with sound")
             return True
-        print(f"🔇 Audio device '{dev}' not found in aplay -L, recording without sound")
+        # plughw:N,M часто не дублируется в arecord -L строкой — сверяем с arecord -l
+        m = re.match(r"^plughw:(\d+),(\d+)$", dev) or re.match(r"^hw:(\d+),(\d+)$", dev)
+        if m:
+            card, subdev = int(m.group(1)), int(m.group(2))
+            proc_l = subprocess.run(["arecord", "-l"], capture_output=True, text=True, timeout=3)
+            if proc_l.returncode == 0 and _arecord_l_has_card_device(proc_l.stdout or "", card, subdev):
+                print(f"🔊 Audio device '{dev}' detected (capture card {card} dev {subdev}), recording with sound")
+                return True
+        print(f"🔇 Audio device '{dev}' not found in ALSA capture list, recording without sound")
         return False
     except Exception as e:
         print(f"audio probe failed, disabling audio: {e}")
@@ -61,6 +91,37 @@ GPIO.setup(PI_MODE_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 os.makedirs(VIDEO_DIR, exist_ok=True)
 os.makedirs(THUMB_DIR, exist_ok=True)
+
+
+def _load_time_offset() -> None:
+    global _time_offset_s
+    try:
+        with open(TIME_OFFSET_PATH, encoding="utf-8") as f:
+            data = json.load(f)
+        _time_offset_s = float(data["offset_s"])
+    except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+        _time_offset_s = 0.0
+
+
+def _save_time_offset() -> None:
+    try:
+        with open(TIME_OFFSET_PATH, "w", encoding="utf-8") as f:
+            json.dump({"offset_s": _time_offset_s}, f, indent=0)
+    except OSError as e:
+        print(f"failed to save time offset: {e}")
+
+
+def wall_time() -> float:
+    """Эффективное время для имён файлов и API (смещение от телефона, без sudo)."""
+    with _time_offset_lock:
+        return time.time() + _time_offset_s
+
+
+def _format_pi_local_time() -> str:
+    return datetime.datetime.fromtimestamp(wall_time()).strftime("%Y-%m-%d %H:%M:%S")
+
+
+_load_time_offset()
 
 process = None
 recording = False
@@ -117,7 +178,7 @@ def _build_rpicam_cmd(filename: str, with_audio: bool) -> list[str]:
             ]
         )
     else:
-        print("аudio disabled, recording video without sound")
+        print("audio disabled, recording video without sound")
 
     cmd.extend(
         [
@@ -149,7 +210,7 @@ def start_recording():
         return
 
     recording_error = False  # сброс при новом старте записи
-    filename = os.path.join(VIDEO_DIR, f"video_{int(time.time())}.mp4")
+    filename = os.path.join(VIDEO_DIR, f"video_{int(wall_time())}.mp4")
     current_filename = filename
 
     # сначала пробуем с аудио (если оно ещё не было отключено), при быстром фейле — повторяем без звука
@@ -185,7 +246,7 @@ def start_recording():
             # больше не будем пытаться писать аудио в следующих запусках
             audio_enabled = False
             print("🔇 Disabling audio and retrying recording without sound")
-            filename = os.path.join(VIDEO_DIR, f"video_{int(time.time())}.mp4")
+            filename = os.path.join(VIDEO_DIR, f"video_{int(wall_time())}.mp4")
             cmd_no_audio = _build_rpicam_cmd(filename, with_audio=False)
             print("rpicam-vid cmd (no audio):", " ".join(cmd_no_audio))
             try:
@@ -284,6 +345,17 @@ def _wait_for_file_stable(path: str | None, timeout_s: float = 8.0, poll_s: floa
 
 
 # ---------- FILE LIST ----------
+def _unix_from_video_filename(name: str) -> int | None:
+    """Unix-время из имени video_<ts>.mp4 (совпадает с wall_time при записи)."""
+    if not name.startswith("video_") or not name.endswith(".mp4"):
+        return None
+    core = name[len("video_") : -len(".mp4")]
+    try:
+        return int(core)
+    except ValueError:
+        return None
+
+
 def list_files():
     files = []
     for f in os.listdir(VIDEO_DIR):
@@ -293,7 +365,11 @@ def list_files():
 
 
 def list_files_with_meta():
-    """Список видео с именем, размером и временем изменения (для фронта)."""
+    """
+    Список видео с именем, размером и временем для фронта.
+    mtime — по возможности из имени файла (учёт смещения времени с телефона);
+    иначе st_mtime (системные часы Pi могут быть неверными без NTP).
+    """
     out = []
     for f in sorted(os.listdir(VIDEO_DIR), reverse=True):
         if not f.endswith(".mp4"):
@@ -301,7 +377,9 @@ def list_files_with_meta():
         path = os.path.join(VIDEO_DIR, f)
         try:
             st = os.stat(path)
-            out.append({"name": f, "size": st.st_size, "mtime": int(st.st_mtime)})
+            from_name = _unix_from_video_filename(f)
+            mtime = int(from_name if from_name is not None else st.st_mtime)
+            out.append({"name": f, "size": st.st_size, "mtime": mtime})
         except OSError:
             pass
     return out
@@ -504,6 +582,51 @@ def stream():
 def videos_list():
     """Список видео с метаданными для фронта."""
     return jsonify({"files": list_files_with_meta()})
+
+
+@app.route("/api/time", methods=["GET"])
+def api_time_get():
+    """Текущее «эффективное» локальное время Pi (учёт смещения после синка с телефона)."""
+    with _time_offset_lock:
+        wt = time.time() + _time_offset_s
+        off = _time_offset_s
+    local = datetime.datetime.fromtimestamp(wt).strftime("%Y-%m-%d %H:%M:%S")
+    return jsonify({"unix_s": int(wt), "local": local, "offset_s": off})
+
+
+@app.route("/api/time/sync", methods=["POST"])
+def api_time_sync():
+    """
+    Принимает unix_ms с телефона и пересчитывает смещение (без прав root).
+    Используется для имён видео и отображения в UI.
+    """
+    global _time_offset_s
+    data = request.get_json(silent=True) or {}
+    unix_ms = data.get("unix_ms")
+    if unix_ms is None:
+        return jsonify({"ok": False, "error": "missing unix_ms"}), 400
+    try:
+        t_phone = float(unix_ms) / 1000.0
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "error": "invalid unix_ms"}), 400
+
+    with _time_offset_lock:
+        _time_offset_s = t_phone - time.time()
+        try:
+            with open(TIME_OFFSET_PATH, "w", encoding="utf-8") as f:
+                json.dump({"offset_s": _time_offset_s}, f, indent=0)
+        except OSError as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    print(f"time sync: offset_s={_time_offset_s:.3f}")
+    return jsonify(
+        {
+            "ok": True,
+            "unix_s": int(wall_time()),
+            "local": _format_pi_local_time(),
+            "offset_s": _time_offset_s,
+        }
+    )
 
 
 @app.route("/videos/thumbnail/<path:filename>")
