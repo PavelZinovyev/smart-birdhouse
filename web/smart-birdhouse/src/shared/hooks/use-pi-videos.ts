@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { deletePiVideo, fetchPiVideos, type IPiVideoFile } from './pi-videos';
-import { queryKeys } from './query-keys';
+import { deletePiVideo, fetchPiVideos, type IPiVideoFile } from '../api/pi-videos';
+import { queryKeys } from '../api/query-keys';
 import { useMutationWithInvalidate } from './use-mutation-with-invalidate';
 import { REFETCH_INTERVAL_PI_STATUS_MS, STALE_TIME_OFFSET_MS } from '@/shared/constants/query';
 
@@ -15,8 +15,7 @@ export function usePiVideos(refetchIntervalMs = REFETCH_INTERVAL_PI_STATUS_MS) {
 
   const files: IPiVideoFile[] = query.data?.files ?? [];
   const hasNoFilesYet = files.length === 0;
-  const loading =
-    query.isPending || (query.isFetching && hasNoFilesYet);
+  const loading = query.isPending || (query.isFetching && hasNoFilesYet);
 
   return {
     files,

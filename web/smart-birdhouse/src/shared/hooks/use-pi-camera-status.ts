@@ -1,10 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
-import { fetchPiCameraStatus, startPiRecording, stopPiRecording } from './pi';
-import { queryKeys } from './query-keys';
+import { fetchPiCameraStatus, startPiRecording, stopPiRecording } from '../api/pi';
+import { queryKeys } from '../api/query-keys';
 import { REFETCH_INTERVAL_PI_STATUS_MS, STALE_TIME_OFFSET_MS } from '@/shared/constants/query';
 
-export function usePiCameraStatus(enabled: boolean, refetchIntervalMs = REFETCH_INTERVAL_PI_STATUS_MS) {
+export function usePiCameraStatus(
+  enabled: boolean,
+  refetchIntervalMs = REFETCH_INTERVAL_PI_STATUS_MS,
+) {
   return useQuery({
     queryKey: queryKeys.pi.cameraStatus,
     queryFn: fetchPiCameraStatus,

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchSensors, type SensorsData } from './sensors';
-import { queryKeys } from './query-keys';
+import { fetchSensors, type SensorsData } from '../api/sensors';
+import { queryKeys } from '../api/query-keys';
 import { REFETCH_INTERVAL_SENSORS_MS, STALE_TIME_OFFSET_MS } from '@/shared/constants/query';
 
 /**

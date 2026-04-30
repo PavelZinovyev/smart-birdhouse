@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { usePiStatus } from './use-pi-power';
+import type { usePiStatus } from '../hooks/use-pi-power';
 
 export type PiStatusValue = ReturnType<typeof usePiStatus>;
 

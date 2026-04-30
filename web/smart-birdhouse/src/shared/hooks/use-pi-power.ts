@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchPiStatus, setPiPower, type PiStatus } from './pi';
-import { queryKeys } from './query-keys';
+import { fetchPiStatus, setPiPower, type PiStatus } from '../api/pi';
+import { queryKeys } from '../api/query-keys';
 import { useMutationWithInvalidate } from './use-mutation-with-invalidate';
 import { REFETCH_INTERVAL_PI_STATUS_MS, STALE_TIME_OFFSET_MS } from '@/shared/constants/query';
 

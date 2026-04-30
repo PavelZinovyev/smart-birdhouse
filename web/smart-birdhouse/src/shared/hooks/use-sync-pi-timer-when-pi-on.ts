@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { syncPiTimeFromPhone } from './pi';
+import { syncPiTimeFromPhone } from '../api/pi';
 
 /** Защита от двойного вызова в React Strict Mode и от слишком частых POST. */
 const SYNC_DEBOUNCE_MS = 1500;
